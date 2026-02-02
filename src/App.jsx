@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Mic, Users, Ruler, Camera, Code, Terminal, Sparkles, ArrowRight } from 'lucide-react'
 
@@ -73,13 +74,37 @@ const glowClasses = {
 function ProjectCard({ project, index }) {
   const Icon = project.icon
   const isLarge = project.large
-  
+  const cardRef = useRef(null)
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    const tiltX = (y - centerY) / centerY * -10
+    const tiltY = (x - centerX) / centerX * 10
+    setTilt({ x: tiltX, y: tiltY })
+  }
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 })
+  }
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
-      whileHover={{ scale: 1.02, y: -5 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.x !== 0 || tilt.y !== 0 ? 1.02 : 1})`,
+        transition: 'transform 0.1s ease-out',
+      }}
       className={`
         relative overflow-hidden rounded-2xl glass p-6 cursor-pointer
         ${isLarge ? 'md:col-span-2 md:row-span-2' : ''}
