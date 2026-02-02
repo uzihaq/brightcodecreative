@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Mic, Users, Ruler, Camera, Code, Terminal, Sparkles, ArrowRight } from 'lucide-react'
 
 const projects = [
@@ -76,9 +76,10 @@ function ProjectCard({ project, index }) {
   const isLarge = project.large
   const cardRef = useRef(null)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const prefersReducedMotion = useReducedMotion()
 
   const handleMouseMove = (e) => {
-    if (!cardRef.current) return
+    if (!cardRef.current || prefersReducedMotion) return
     const rect = cardRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -93,16 +94,28 @@ function ProjectCard({ project, index }) {
     setTilt({ x: 0, y: 0 })
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      // Trigger click action - for now just logs, will be updated with actual navigation
+      console.log(`Selected project: ${project.name}`)
+    }
+  }
+
   return (
-    <motion.div
+    <motion.article
       ref={cardRef}
-      initial={{ opacity: 0, y: 40 }}
+      role="article"
+      tabIndex={0}
+      aria-label={`${project.name}: ${project.tagline}. Status: ${project.status}`}
+      initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay: index * 0.1, duration: 0.6, ease: "easeOut" }}
+      transition={prefersReducedMotion ? { duration: 0 } : { delay: index * 0.1, duration: 0.6, ease: "easeOut" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
+      onKeyDown={handleKeyDown}
+      style={prefersReducedMotion ? {} : {
         transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.x !== 0 || tilt.y !== 0 ? 1.02 : 1})`,
         transition: 'transform 0.1s ease-out',
       }}
@@ -112,6 +125,7 @@ function ProjectCard({ project, index }) {
         ${project.meta ? 'border-dashed border-2 border-white/20' : ''}
         ${glowClasses[project.color]}
         hover:border-white/30 transition-all duration-300
+        focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-midnight
       `}
     >
       {/* Gradient orb background */}
@@ -119,7 +133,7 @@ function ProjectCard({ project, index }) {
       
       {/* Status badge */}
       <div className="flex justify-between items-start mb-4">
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${project.gradient}`}>
+        <div className={`p-3 rounded-xl bg-gradient-to-br ${project.gradient}`} aria-hidden="true">
           <Icon className="w-6 h-6 text-white" />
         </div>
         <span className={`text-xs font-medium px-2 py-1 rounded-full bg-white/10`}>
@@ -146,72 +160,83 @@ function ProjectCard({ project, index }) {
       </div>
       
       {/* CTA */}
-      <div className="flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white transition-colors">
+      <div className="flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white transition-colors" aria-hidden="true">
         <span>Learn more</span>
         <ArrowRight className="w-4 h-4" />
       </div>
-    </motion.div>
+    </motion.article>
   )
 }
 
 function Hero() {
+  const prefersReducedMotion = useReducedMotion()
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: -20 }}
+    <motion.header
+      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className="text-center py-20 px-4"
+      role="banner"
     >
       <motion.div
-        animate={{ rotate: [0, 5, -5, 0] }}
+        animate={prefersReducedMotion ? {} : { rotate: [0, 5, -5, 0] }}
         transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
         className="inline-block mb-6"
+        aria-hidden="true"
       >
         <Terminal className="w-16 h-16 text-glow-cyan mx-auto" />
       </motion.div>
-      
+
       <h1 className="text-5xl md:text-7xl font-bold mb-4">
         <span className="gradient-text">Vibe Code</span>
         <br />
         <span className="text-white">Weekend</span>
       </h1>
-      
+
       <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
-        Ship real products in a weekend using AI-assisted development. 
+        Ship real products in a weekend using AI-assisted development.
         These apps were built with Claude Code — and you can too.
       </p>
-      
-      <div className="flex flex-wrap justify-center gap-4">
+
+      <nav className="flex flex-wrap justify-center gap-4" aria-label="Primary actions">
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 font-semibold flex items-center gap-2"
+          whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+          whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+          className="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 font-semibold flex items-center gap-2 focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-midnight"
+          aria-label="Start building - scroll to projects"
         >
-          <Sparkles className="w-5 h-5" />
+          <Sparkles className="w-5 h-5" aria-hidden="true" />
           Start Building
         </motion.button>
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="px-6 py-3 rounded-full border border-white/20 font-semibold hover:bg-white/5 transition-colors"
+          whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+          whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+          className="px-6 py-3 rounded-full border border-white/20 font-semibold hover:bg-white/5 transition-colors focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-midnight"
+          aria-label="Watch demo video"
         >
           Watch Demo
         </motion.button>
-      </div>
-    </motion.div>
+      </nav>
+    </motion.header>
   )
 }
 
 function App() {
   return (
     <div className="min-h-screen bg-midnight">
+      {/* Skip link for keyboard navigation */}
+      <a href="#projects" className="skip-link">
+        Skip to projects
+      </a>
+
       {/* Background grid */}
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
-      
+      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" aria-hidden="true" />
+
       {/* Gradient orbs */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[128px] pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[128px] pointer-events-none" />
-      
-      <div className="relative z-10 max-w-6xl mx-auto px-4">
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[128px] pointer-events-none" aria-hidden="true" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[128px] pointer-events-none" aria-hidden="true" />
+
+      <main className="relative z-10 max-w-6xl mx-auto px-4">
         <Hero />
         
         {/* Projects Section */}
@@ -252,7 +277,7 @@ function App() {
             Built with 🫘 by Bean & Uzair
           </p>
         </motion.footer>
-      </div>
+      </main>
     </div>
   )
 }
