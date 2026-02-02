@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, createContext, useContext } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Mic, Users, Ruler, Camera, Code, Terminal, Sparkles, ArrowRight, Sun, Moon } from 'lucide-react'
+import { Mic, Users, Ruler, Camera, Code, Terminal, Sparkles, ArrowRight, Sun, Moon, Play } from 'lucide-react'
 
 // Theme context
 const ThemeContext = createContext()
@@ -134,6 +134,7 @@ function ProjectCard({ project, index }) {
   const isLarge = project.large
   const cardRef = useRef(null)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [isHovered, setIsHovered] = useState(false)
   const prefersReducedMotion = useReducedMotion()
   const { theme } = useTheme()
 
@@ -149,8 +150,11 @@ function ProjectCard({ project, index }) {
     setTilt({ x: tiltX, y: tiltY })
   }
 
+  const handleMouseEnter = () => setIsHovered(true)
+
   const handleMouseLeave = () => {
     setTilt({ x: 0, y: 0 })
+    setIsHovered(false)
   }
 
   const handleKeyDown = (e) => {
@@ -172,6 +176,7 @@ function ProjectCard({ project, index }) {
       viewport={{ once: true, margin: "-50px" }}
       transition={prefersReducedMotion ? { duration: 0 } : { delay: index * 0.1, duration: 0.6, ease: "easeOut" }}
       onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onKeyDown={handleKeyDown}
       style={prefersReducedMotion ? {} : {
@@ -189,7 +194,36 @@ function ProjectCard({ project, index }) {
     >
       {/* Gradient orb background */}
       <div className={`absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br ${project.gradient} rounded-full opacity-20 blur-3xl`} />
-      
+
+      {/* Video preview overlay */}
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: isHovered ? 1 : 0,
+          scale: isHovered ? 1 : 0.95,
+        }}
+        transition={{ duration: 0.2 }}
+        className={`absolute inset-0 z-10 flex items-center justify-center rounded-2xl ${isHovered ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        style={{
+          background: theme === 'light'
+            ? 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,240,245,0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(26,26,36,0.95) 0%, rgba(10,10,15,0.95) 100%)',
+        }}
+      >
+        <div className="text-center">
+          <motion.div
+            animate={isHovered && !prefersReducedMotion ? { scale: [1, 1.1, 1] } : {}}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${project.gradient} mb-3`}
+          >
+            <Play className="w-7 h-7 text-white ml-1" />
+          </motion.div>
+          <p className={`text-sm font-medium ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+            Preview coming soon
+          </p>
+        </div>
+      </motion.div>
+
       {/* Status badge */}
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-xl bg-gradient-to-br ${project.gradient}`} aria-hidden="true">
