@@ -61,6 +61,15 @@ const projects = [
   },
 ]
 
+// Static class mappings for Tailwind JIT compilation
+const glowClasses = {
+  cyan: 'glow-cyan',
+  purple: 'glow-purple',
+  green: 'glow-green',
+  orange: 'glow-orange',
+  pink: 'glow-pink',
+}
+
 function ProjectCard({ project, index }) {
   const Icon = project.icon
   const isLarge = project.large
@@ -75,7 +84,7 @@ function ProjectCard({ project, index }) {
         relative overflow-hidden rounded-2xl glass p-6 cursor-pointer
         ${isLarge ? 'md:col-span-2 md:row-span-2' : ''}
         ${project.meta ? 'border-dashed border-2 border-white/20' : ''}
-        glow-${project.color}
+        ${glowClasses[project.color]}
         hover:border-white/30 transition-all duration-300
       `}
     >
