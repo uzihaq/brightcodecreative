@@ -262,20 +262,26 @@ function Hero() {
         <motion.button
           whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
           whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+          onClick={() => {
+            document.getElementById('projects')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' })
+          }}
           className="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 font-semibold flex items-center gap-2 focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-midnight"
           aria-label="Start building - scroll to projects"
         >
           <Sparkles className="w-5 h-5" aria-hidden="true" />
           Start Building
         </motion.button>
-        <motion.button
+        <motion.a
+          href="https://claude.ai/claude-code"
+          target="_blank"
+          rel="noopener noreferrer"
           whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
           whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
-          className={`px-6 py-3 rounded-full font-semibold transition-colors focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 ${theme === 'light' ? 'border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-offset-gray-50' : 'border border-white/20 hover:bg-white/5 focus:ring-offset-midnight'}`}
-          aria-label="Watch demo video"
+          className={`px-6 py-3 rounded-full font-semibold transition-colors focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 inline-flex items-center gap-2 ${theme === 'light' ? 'border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-offset-gray-50' : 'border border-white/20 hover:bg-white/5 focus:ring-offset-midnight'}`}
+          aria-label="Watch demo - opens Claude Code in new tab"
         >
           Watch Demo
-        </motion.button>
+        </motion.a>
       </nav>
     </motion.header>
   )
