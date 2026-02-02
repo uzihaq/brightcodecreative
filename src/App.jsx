@@ -1,6 +1,64 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, createContext, useContext } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Mic, Users, Ruler, Camera, Code, Terminal, Sparkles, ArrowRight } from 'lucide-react'
+import { Mic, Users, Ruler, Camera, Code, Terminal, Sparkles, ArrowRight, Sun, Moon } from 'lucide-react'
+
+// Theme context
+const ThemeContext = createContext()
+
+function useTheme() {
+  return useContext(ThemeContext)
+}
+
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme')
+      if (saved) return saved
+      return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    }
+    return 'dark'
+  })
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme)
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  const prefersReducedMotion = useReducedMotion()
+
+  return (
+    <motion.button
+      onClick={toggleTheme}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.1 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.9 }}
+      className="fixed top-4 right-4 z-50 p-3 rounded-full glass hover:border-white/30 transition-colors focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-midnight"
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+    >
+      <motion.div
+        initial={false}
+        animate={{ rotate: theme === 'dark' ? 0 : 180 }}
+        transition={{ duration: 0.3 }}
+      >
+        {theme === 'dark' ? (
+          <Sun className="w-5 h-5 text-yellow-400" />
+        ) : (
+          <Moon className="w-5 h-5 text-purple-500" />
+        )}
+      </motion.div>
+    </motion.button>
+  )
+}
 
 const projects = [
   {
@@ -77,6 +135,7 @@ function ProjectCard({ project, index }) {
   const cardRef = useRef(null)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const prefersReducedMotion = useReducedMotion()
+  const { theme } = useTheme()
 
   const handleMouseMove = (e) => {
     if (!cardRef.current || prefersReducedMotion) return
@@ -136,31 +195,31 @@ function ProjectCard({ project, index }) {
         <div className={`p-3 rounded-xl bg-gradient-to-br ${project.gradient}`} aria-hidden="true">
           <Icon className="w-6 h-6 text-white" />
         </div>
-        <span className={`text-xs font-medium px-2 py-1 rounded-full bg-white/10`}>
+        <span className={`text-xs font-medium px-2 py-1 rounded-full ${theme === 'light' ? 'bg-gray-100 text-gray-700' : 'bg-white/10 text-white'}`}>
           {project.status}
         </span>
       </div>
       
       {/* Content */}
-      <h3 className="text-2xl font-bold mb-1">{project.name}</h3>
+      <h3 className={`text-2xl font-bold mb-1 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{project.name}</h3>
       <p className={`text-sm font-medium bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent mb-3`}>
         {project.tagline}
       </p>
-      <p className="text-gray-400 text-sm leading-relaxed mb-4">
+      <p className={`text-sm leading-relaxed mb-4 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
         {project.description}
       </p>
-      
+
       {/* Features */}
       <div className="flex flex-wrap gap-2 mb-4">
         {project.features.map((feature, i) => (
-          <span key={i} className="text-xs px-2 py-1 rounded-md bg-white/5 text-gray-300">
+          <span key={i} className={`text-xs px-2 py-1 rounded-md ${theme === 'light' ? 'bg-gray-100 text-gray-700' : 'bg-white/5 text-gray-300'}`}>
             {feature}
           </span>
         ))}
       </div>
-      
+
       {/* CTA */}
-      <div className="flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white transition-colors" aria-hidden="true">
+      <div className={`flex items-center gap-2 text-sm font-medium transition-colors ${theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-white/70 hover:text-white'}`} aria-hidden="true">
         <span>Learn more</span>
         <ArrowRight className="w-4 h-4" />
       </div>
@@ -170,6 +229,7 @@ function ProjectCard({ project, index }) {
 
 function Hero() {
   const prefersReducedMotion = useReducedMotion()
+  const { theme } = useTheme()
 
   return (
     <motion.header
@@ -184,16 +244,16 @@ function Hero() {
         className="inline-block mb-6"
         aria-hidden="true"
       >
-        <Terminal className="w-16 h-16 text-glow-cyan mx-auto" />
+        <Terminal className={`w-16 h-16 mx-auto ${theme === 'light' ? 'text-cyan-600' : 'text-glow-cyan'}`} />
       </motion.div>
 
       <h1 className="text-5xl md:text-7xl font-bold mb-4">
         <span className="gradient-text">Vibe Code</span>
         <br />
-        <span className="text-white">Weekend</span>
+        <span className={theme === 'light' ? 'text-gray-900' : 'text-white'}>Weekend</span>
       </h1>
 
-      <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+      <p className={`text-xl max-w-2xl mx-auto mb-8 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
         Ship real products in a weekend using AI-assisted development.
         These apps were built with Claude Code — and you can too.
       </p>
@@ -211,7 +271,7 @@ function Hero() {
         <motion.button
           whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
           whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
-          className="px-6 py-3 rounded-full border border-white/20 font-semibold hover:bg-white/5 transition-colors focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-midnight"
+          className={`px-6 py-3 rounded-full font-semibold transition-colors focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 ${theme === 'light' ? 'border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-offset-gray-50' : 'border border-white/20 hover:bg-white/5 focus:ring-offset-midnight'}`}
           aria-label="Watch demo video"
         >
           Watch Demo
@@ -221,20 +281,24 @@ function Hero() {
   )
 }
 
-function App() {
+function AppContent() {
+  const { theme } = useTheme()
+
   return (
-    <div className="min-h-screen bg-midnight">
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-midnight text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Skip link for keyboard navigation */}
       <a href="#projects" className="skip-link">
         Skip to projects
       </a>
 
+      <ThemeToggle />
+
       {/* Background grid */}
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" aria-hidden="true" />
+      <div className={`fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none transition-opacity duration-300 ${theme === 'light' ? 'opacity-0' : ''}`} aria-hidden="true" />
 
       {/* Gradient orbs */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[128px] pointer-events-none" aria-hidden="true" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[128px] pointer-events-none" aria-hidden="true" />
+      <div className={`fixed top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[128px] pointer-events-none transition-opacity duration-300 ${theme === 'light' ? 'opacity-30' : ''}`} aria-hidden="true" />
+      <div className={`fixed bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[128px] pointer-events-none transition-opacity duration-300 ${theme === 'light' ? 'opacity-30' : ''}`} aria-hidden="true" />
 
       <main className="relative z-10 max-w-6xl mx-auto px-4">
         <Hero />
@@ -271,14 +335,22 @@ function App() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center py-12 border-t border-white/10"
+          className={`text-center py-12 border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}
         >
-          <p className="text-gray-500 text-sm">
+          <p className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-500'}`}>
             Built with 🫘 by Bean & Uzair
           </p>
         </motion.footer>
       </main>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 
