@@ -41,7 +41,7 @@ const ProjectPage = ({ projectId, onBack, isMobile }) => {
       }}>
         <div style={{
           aspectRatio: "16/9", borderRadius: 16, overflow: "hidden", position: "relative",
-          background: videoPlaying ? "#000" : (project.image ? `url(${project.image}) center/cover` : `linear-gradient(135deg, ${project.color}44 0%, #0a0a0a 100%)`),
+          background: videoPlaying ? "#000" : (project.image ? `url(${project.image}) ${project.imageFocus || "center center"}/cover` : `linear-gradient(135deg, ${project.color}44 0%, #0a0a0a 100%)`),
           marginBottom: 60,
         }}>
           {videoPlaying && project.vimeoId ? (
@@ -131,7 +131,7 @@ const ProjectPage = ({ projectId, onBack, isMobile }) => {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
             {relatedProjects.map((p, i) => {
-              const item = { id: p.id, title: p.title, desc: p.desc, type: p.type, color: p.color, photo: p.image };
+              const item = { id: p.id, title: p.title, desc: p.desc, type: p.type, color: p.color, photo: p.image, imageFocus: p.imageFocus };
               return <ProjectCard key={p.id} item={item} index={i} isVisible={true} onClick={() => { window.dispatchEvent(new CustomEvent('navigate-project', { detail: p.id })); }} />;
             })}
           </div>

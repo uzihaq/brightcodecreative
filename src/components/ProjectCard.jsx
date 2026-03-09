@@ -32,6 +32,7 @@ const ProjectCard = ({ item, index, isVisible, onClick }) => {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            objectPosition: item.imageFocus || "center center",
             transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
             transform: hovered ? "scale(1.05)" : "scale(1)",
           }}
