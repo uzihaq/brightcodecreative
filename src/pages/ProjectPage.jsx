@@ -13,8 +13,9 @@ import ProjectCard from "../components/ProjectCard";
 
 const ProjectPage = ({ projectId, onBack, isMobile }) => {
   const [loaded, setLoaded] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const project = allProjects.find(p => p.id === projectId) || allProjects[0];
-  useEffect(() => { setLoaded(true); window.scrollTo(0, 0); }, []);
+  useEffect(() => { setLoaded(true); setVideoPlaying(false); window.scrollTo(0, 0); }, [projectId]);
 
   const relatedProjects = allProjects.filter(p => p.category === project.category && p.id !== project.id).slice(0, 3);
 
@@ -40,16 +41,38 @@ const ProjectPage = ({ projectId, onBack, isMobile }) => {
       }}>
         <div style={{
           aspectRatio: "16/9", borderRadius: 16, overflow: "hidden", position: "relative",
-          background: project.image ? `url(${project.image}) center/cover` : `linear-gradient(135deg, ${project.color}44 0%, #0a0a0a 100%)`,
+          background: videoPlaying ? "#000" : (project.image ? `url(${project.image}) center/cover` : `linear-gradient(135deg, ${project.color}44 0%, #0a0a0a 100%)`),
           marginBottom: 60,
         }}>
-          <div style={{ position: "absolute", inset: 0, background: project.image ? "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5))" : `radial-gradient(circle at 40% 40%, ${project.color}33 0%, transparent 60%)` }} />
-          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-            <div style={{ width: 80, height: 80, borderRadius: "50%", background: rgba(colors.gold, 0.15), backdropFilter: "blur(10px)", border: `1px solid ${rgba(colors.gold, 0.3)}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-              <div style={{ width: 0, height: 0, borderTop: "12px solid transparent", borderBottom: "12px solid transparent", borderLeft: `20px solid ${rgba(colors.gold, 0.9)}`, marginLeft: 4 }} />
-            </div>
-            <span style={{ fontFamily: fonts.body, fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(245,240,232,0.5)" }}>{playVideoText}</span>
-          </div>
+          {videoPlaying && project.vimeoId ? (
+            /* Vimeo embed — replaces thumbnail when play is clicked */
+            <iframe
+              src={`https://player.vimeo.com/video/${project.vimeoId}?autoplay=1&title=0&byline=0&portrait=0&color=C4943D`}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              title={project.title}
+            />
+          ) : (
+            <>
+              <div style={{ position: "absolute", inset: 0, background: project.image ? "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5))" : `radial-gradient(circle at 40% 40%, ${project.color}33 0%, transparent 60%)` }} />
+              {/* Show play button only for video projects with a vimeoId */}
+              {project.type === "video" && (
+                <div
+                  onClick={() => project.vimeoId && setVideoPlaying(true)}
+                  style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, cursor: project.vimeoId ? "pointer" : "default", opacity: project.vimeoId ? 1 : 0.4 }}
+                >
+                  <div style={{ width: 80, height: 80, borderRadius: "50%", background: rgba(colors.gold, 0.15), backdropFilter: "blur(10px)", border: `1px solid ${rgba(colors.gold, 0.3)}`, display: "flex", alignItems: "center", justifyContent: "center", transition: "transform 0.3s ease" }}
+                    onMouseEnter={e => project.vimeoId && (e.currentTarget.style.transform = "scale(1.1)")}
+                    onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                  >
+                    <div style={{ width: 0, height: 0, borderTop: "12px solid transparent", borderBottom: "12px solid transparent", borderLeft: `20px solid ${rgba(colors.gold, 0.9)}`, marginLeft: 4 }} />
+                  </div>
+                  <span style={{ fontFamily: fonts.body, fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(245,240,232,0.5)" }}>{playVideoText}</span>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
