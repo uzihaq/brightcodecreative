@@ -1,0 +1,56 @@
+{
+  "heroTagline": "AI-Powered Cinematic Production",
+  "heroHeadlinePre": "We craft ",
+  "heroHeadlineAccent": "cinema",
+  "heroHeadlinePost": "from code",
+  "heroDescription": "BrightCode Creative transforms bold ideas into stunning AI-generated video and imagery for brands that refuse to blend in.",
+  "heroButtonText": "Watch Showreel",
+  "scrollIndicatorText": "Scroll",
+
+  "navSectionLabels": ["Home", "Brand Films", "AI Personas", "Fashion & Editorial", "Social & Reels", "About", "Contact"],
+  "navLinks": [
+    { "label": "Work", "sectionIndex": 1 },
+    { "label": "About", "sectionIndex": 5 },
+    { "label": "Contact", "sectionIndex": 6 }
+  ],
+  "navCtaText": "Start a Project",
+
+  "logoInitials": "BC",
+  "logoName": "BRIGHTCODE",
+  "logoSubtitle": "CREATIVE",
+
+  "aboutLabel": "About",
+  "aboutHeadingPre": "Where creative vision",
+  "aboutHeadingAccent": "AI precision",
+  "aboutDescription1": "BrightCode Creative is an AI-powered production studio specializing in cinematic video and image creation for brands, organizations, and creators who demand more than ordinary content.",
+  "aboutDescription2": "We combine cutting-edge generative AI with real cinematic craft \u2014 directorial vision, camera language, and storytelling \u2014 to produce content that looks, feels, and performs like it was made by a full production team.",
+  "aboutStats": [
+    { "number": "50+", "label": "Projects delivered" },
+    { "number": "15+", "label": "AI models mastered" },
+    { "number": "4K", "label": "Cinematic quality" },
+    { "number": "48hr", "label": "Average turnaround" }
+  ],
+
+  "contactLabel": "Let\u2019s Create",
+  "contactHeadingPre": "Ready to bring your",
+  "contactHeadingAccent": "vision to life?",
+  "contactDescription": "Whether it\u2019s a brand campaign, social content, or something entirely new \u2014 we\u2019d love to hear about your project.",
+  "contactCtaText": "Start a Project",
+  "contactEmail": "hello@brightcodecreative.com",
+
+  "footerCopyright": "\u00A9 2026 BrightCode Creative. All rights reserved.",
+  "footerSocials": ["Instagram", "Vimeo", "LinkedIn"],
+
+  "backButtonText": "\u2190 Back to Work",
+  "playVideoText": "Play Video",
+  "galleryTitle": "Gallery",
+  "viewAllText": "View All \u2192",
+  "projectDetailLabels": {
+    "client": "Client",
+    "role": "Role",
+    "tools": "Tools",
+    "deliverables": "Deliverables"
+  },
+  "mediaTypeBadges": { "video": "\u25b6 Video", "image": "\u25c9 Photo" },
+  "galleryItemLabels": { "video": "Video", "still": "Still" }
+}

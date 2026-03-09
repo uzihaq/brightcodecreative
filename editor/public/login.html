@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrightCode Editor — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080808;color:#e0e0e0;font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-card{background:#111;border:1px solid #222;border-radius:12px;padding:48px 40px;width:100%;max-width:400px;text-align:center}
+.login-card h1{font-family:'Playfair Display',serif;font-size:28px;color:#C4943D;margin-bottom:8px}
+.login-card p{color:#888;font-size:14px;margin-bottom:32px}
+.login-card input{width:100%;padding:14px 16px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#e0e0e0;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.login-card input:focus{border-color:#C4943D}
+.login-card button{width:100%;margin-top:16px;padding:14px;background:#C4943D;color:#080808;border:none;border-radius:8px;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .2s}
+.login-card button:hover{background:#d4a44d}
+.error{color:#e05555;font-size:13px;margin-top:12px}
+</style>
+</head>
+<body>
+<form class="login-card" method="POST" action="/login">
+  <h1>BrightCode Editor</h1>
+  <p>Enter the password to continue</p>
+  <input type="password" name="password" placeholder="Password" autofocus required>
+  <button type="submit">Sign In</button>
+  <div class="error" id="err" style="display:none">Incorrect password. Try again.</div>
+</form>
+<script>
+if(location.search.includes('error=1'))document.getElementById('err').style.display='block';
+</script>
+</body>
+</html>
