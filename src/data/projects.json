@@ -4,7 +4,7 @@
       "id": "brand-films",
       "label": "Brand Films",
       "metaId": "brand-films",
-      "subtitle": "Cinematic AI video for the world\u2019s boldest brands"
+      "subtitle": "Cinematic AI video for the world’s boldest brands"
     },
     {
       "id": "ai-personas",
@@ -30,7 +30,7 @@
       "id": "nascar-san-diego",
       "category": "brand-films",
       "title": "NASCAR San Diego",
-      "desc": "Cleared for Takeoff \u2014 Teaser Campaign",
+      "desc": "Cleared for Takeoff — Teaser Campaign",
       "longDesc": "A cinematic AI-generated teaser campaign for NASCAR's historic first race on an active military base. Naval Base Coronado comes alive with fighter jets, aircraft carriers, and stock cars in this patriotic spectacle celebrating the 250th anniversary of the U.S. Navy.",
       "type": "video",
       "color": "#C4943D",
@@ -101,9 +101,9 @@
     {
       "id": "valentina",
       "category": "ai-personas",
-      "title": "Valentina",
+      "title": "U",
       "desc": "Luxury lifestyle influencer",
-      "longDesc": "A fully AI-generated digital persona for luxury lifestyle content creation, complete with consistent character identity across hundreds of posts.",
+      "longDesc": "A fully AI-generated digital persona for luxury lifestyle content creation, complete with consistent character identity",
       "type": "image",
       "color": "#9B6B8E",
       "image": "valentina",
