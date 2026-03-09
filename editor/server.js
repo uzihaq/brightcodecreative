@@ -6,6 +6,16 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// Load .env file
+const __envDir = path.dirname(fileURLToPath(import.meta.url));
+try {
+  const envFile = fs.readFileSync(path.join(__envDir, ".env"), "utf-8");
+  envFile.split("\n").forEach((line) => {
+    const [key, ...val] = line.split("=");
+    if (key && val.length) process.env[key.trim()] = val.join("=").trim();
+  });
+} catch (_) { /* no .env file */ }
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 5180;
@@ -140,8 +150,8 @@ app.post("/api/deploy", (_req, res) => {
 });
 
 // API: Send edit request to Uzair via Telegram
-const TELEGRAM_BOT_TOKEN = "8755445926:AAHPiiYzjk6ELAUVSUmkUZ2UvCYedNn-Gpo";
-const UZAIR_CHAT_ID = "7676490178";
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
+const UZAIR_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "7676490178";
 
 app.post("/api/request", async (req, res) => {
   const message = req.body.message?.trim();
