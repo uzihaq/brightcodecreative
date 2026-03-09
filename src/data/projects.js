@@ -4,6 +4,14 @@ const img = (name) => `${import.meta.env.BASE_URL}images/${name}.jpg`;
 // Default focal point for image cropping
 const DEFAULT_FOCUS = "center center";
 
+// Extract numeric Vimeo ID from any format:
+// "123456789" | "https://vimeo.com/123456789" | "https://player.vimeo.com/video/123456789"
+const parseVimeoId = (input) => {
+  if (!input) return "";
+  const match = String(input).match(/(\d{6,})/);
+  return match ? match[1] : "";
+};
+
 import projectsData from "./projects.json";
 
 export const categories = projectsData.categories.map((cat) => ({
@@ -18,6 +26,7 @@ export const allProjects = projectsData.allProjects
     ...p,
     image: img(p.image),
     imageFocus: p.imageFocus || DEFAULT_FOCUS,
+    vimeoId: parseVimeoId(p.vimeoId),
   }));
 
 // Generate categoryMeta from allProjects + category subtitles
