@@ -11,11 +11,14 @@ export const categories = projectsData.categories.map((cat) => ({
   label: cat.label,
 }));
 
-export const allProjects = projectsData.allProjects.map((p) => ({
-  ...p,
-  image: img(p.image),
-  imageFocus: p.imageFocus || DEFAULT_FOCUS,
-}));
+// Filter out hidden projects (visible: false) so they don't render on the site
+export const allProjects = projectsData.allProjects
+  .filter((p) => p.visible !== false)
+  .map((p) => ({
+    ...p,
+    image: img(p.image),
+    imageFocus: p.imageFocus || DEFAULT_FOCUS,
+  }));
 
 // Generate categoryMeta from allProjects + category subtitles
 export const categoryMeta = projectsData.categories.map((cat) => ({

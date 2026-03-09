@@ -8,395 +8,643 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#080808;--surface:#111;--surface2:#1a1a1a;--border:#222;--border2:#333;--gold:#C4943D;--gold-hover:#d4a44d;--text:#e0e0e0;--text-dim:#888;--text-dark:#080808;--success:#4caf50;--error:#e05555;--radius:8px}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.5}
+:root{
+  --bg:#080808;--surface:#111;--surface2:#1a1a1a;--border:#222;--border2:#333;
+  --gold:#C4943D;--gold-hover:#d4a44d;--text:#e0e0e0;--text-dim:#888;--text-dark:#080808;
+  --success:#4caf50;--error:#e05555;--radius:8px;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.5;overflow:hidden;height:100vh}
 h1,h2,h3{font-family:'Playfair Display',serif;font-weight:600}
 
-/* Layout */
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.header h1{font-size:22px;color:var(--gold)}
-.header-actions{display:flex;gap:12px;align-items:center}
-.container{max-width:1200px;margin:0 auto;padding:24px}
+/* ── Split Layout ── */
+.app{display:flex;height:100vh}
+.preview-pane{width:60%;height:100%;border-right:1px solid var(--border);position:relative;background:#000}
+.preview-pane iframe{width:100%;height:100%;border:none}
+.editor-pane{width:40%;height:100%;display:flex;flex-direction:column;min-width:0}
 
-/* Tabs */
-.tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--border)}
-.tab{padding:12px 24px;cursor:pointer;color:var(--text-dim);font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
+/* ── Editor Header ── */
+.editor-header{padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px}
+.editor-header h1{font-size:20px;color:var(--gold);white-space:nowrap}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.header-status{font-size:12px;color:var(--text-dim);white-space:nowrap}
+
+/* ── Editor Scroll Area ── */
+.editor-scroll{flex:1;overflow-y:auto;padding:16px 20px}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.tab{padding:10px 20px;cursor:pointer;color:var(--text-dim);font-weight:500;border-bottom:2px solid transparent;transition:all .2s;font-size:14px}
 .tab:hover{color:var(--text)}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .tab-content{display:none}
 .tab-content.active{display:block}
 
-/* Form */
-.section-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
-.section-group h3{font-size:18px;color:var(--gold);margin-bottom:16px}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:4px;font-weight:500}
-.field input,.field textarea{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;resize:vertical}
-.field input:focus,.field textarea:focus{border-color:var(--gold)}
-.field textarea{min-height:80px}
-
-/* Buttons */
-.btn{padding:10px 20px;border:none;border-radius:6px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+/* ── Buttons ── */
+.btn{padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-gold{background:var(--gold);color:var(--text-dark)}
-.btn-gold:hover{background:var(--gold-hover)}
+.btn-gold:hover:not(:disabled){background:var(--gold-hover)}
 .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text-dim)}
 .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-.btn-sm{padding:6px 14px;font-size:13px}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-danger{background:transparent;border:1px solid var(--error);color:var(--error)}
+.btn-danger:hover{background:var(--error);color:#fff}
 
-/* Project cards */
-.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.project-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
-.project-card:hover{border-color:var(--border2)}
-.project-card img{width:100%;height:180px;object-fit:cover}
-.project-card-body{padding:16px}
-.project-card-body h4{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;margin-bottom:4px}
-.project-card-body p{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+/* ── Collapsible Sections ── */
+.section-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;user-select:none}
+.section-header:hover{background:var(--surface2)}
+.section-header h3{font-size:15px;color:var(--gold);margin:0}
+.section-header .chevron{color:var(--text-dim);transition:transform .2s;font-size:16px}
+.section-group.collapsed .chevron{transform:rotate(-90deg)}
+.section-group.collapsed .section-body{display:none}
+.section-body{padding:4px 20px 20px}
 
-/* Edit panel */
-.edit-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:20px;display:none}
-.edit-panel.open{display:block}
-.edit-panel h3{font-size:18px;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
-.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
-.edit-grid .full{grid-column:1/-1}
-.upload-area{border:2px dashed var(--border2);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;margin-top:8px}
-.upload-area:hover{border-color:var(--gold)}
-.upload-area input{display:none}
-.upload-preview{max-width:200px;max-height:120px;border-radius:6px;margin-top:8px}
+/* ── Form Fields ── */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold)}
+.field textarea{min-height:70px;resize:vertical}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field-row{display:flex;gap:12px;margin-bottom:14px}
+.field-row .field{flex:1;margin-bottom:0}
+.field-row .field-narrow{flex:0 0 100px}
 
-/* Stats editor */
-.stat-row{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+/* ── Stats / Array editors ── */
+.stat-row{display:flex;gap:10px;margin-bottom:8px}
 .stat-row input{flex:1}
-
-/* Array editor */
-.array-items{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.array-item{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:4px 12px;font-size:13px;display:flex;align-items:center;gap:6px}
+.array-items{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.array-item{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:3px 12px;font-size:13px;display:flex;align-items:center;gap:6px}
 .array-item .remove{cursor:pointer;color:var(--error);font-weight:bold;font-size:16px;line-height:1}
+.add-row{display:flex;gap:8px}
+.add-row input{flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:13px;outline:none}
+.add-row input:focus{border-color:var(--gold)}
 
-/* Toast */
-.toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;border-radius:var(--radius);font-size:14px;font-weight:500;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s ease}
+/* ── Project Cards ── */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.project-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .2s}
+.project-card:hover{border-color:var(--border2)}
+.project-card.selected{border-color:var(--gold)}
+.project-card-img{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface2)}
+.project-card-body{padding:12px}
+.project-card-body h4{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.project-card-meta{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.type-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
+.type-badge.video{background:rgba(196,148,61,.2);color:var(--gold)}
+.type-badge.image{background:rgba(107,142,155,.2);color:#8eb4c4}
+.category-label{font-size:11px;color:var(--text-dim)}
+
+/* ── Edit Panel ── */
+.edit-panel{background:var(--surface);border:1px solid var(--gold);border-radius:var(--radius);padding:20px;margin-top:16px}
+.edit-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.edit-panel-header h3{font-size:16px;color:var(--gold)}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+.edit-grid .full{grid-column:1/-1}
+
+/* ── Image Upload ── */
+.upload-area{border:2px dashed var(--border2);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative}
+.upload-area:hover,.upload-area.dragover{border-color:var(--gold)}
+.upload-area input[type=file]{display:none}
+.upload-area p{font-size:13px;color:var(--text-dim);margin-bottom:8px}
+.upload-preview{max-width:180px;max-height:100px;border-radius:6px;object-fit:cover}
+
+/* ── Color Picker ── */
+.color-row{display:flex;gap:8px;align-items:center}
+.color-row input[type=color]{width:40px;height:36px;border:1px solid var(--border2);border-radius:6px;padding:2px;cursor:pointer;background:var(--surface2)}
+.color-row input[type=text]{flex:1}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s ease;max-width:360px}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.success{background:var(--success);color:#fff}
 .toast.error{background:var(--error);color:#fff}
 
-/* Category editor inline */
-.category-row{display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
-.category-row:last-child{border-bottom:none}
-.category-row label{font-size:12px;color:var(--text-dim)}
+/* ── Preview Toggle (mobile) ── */
+.preview-toggle{display:none;position:fixed;bottom:24px;left:24px;z-index:150;padding:10px 18px;border-radius:var(--radius);background:var(--gold);color:var(--text-dark);font-weight:600;font-size:13px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 
-/* Responsive */
-@media(max-width:768px){
-  .header{padding:12px 16px;flex-direction:column;gap:8px}
-  .container{padding:16px}
+/* ── Mobile ── */
+@media(max-width:900px){
+  .preview-pane{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:200}
+  .preview-pane.show{display:block}
+  .editor-pane{width:100%}
+  .preview-toggle{display:block}
   .edit-grid{grid-template-columns:1fr}
+  .project-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:500px){
+  .editor-header{padding:10px 14px}
+  .editor-header h1{font-size:17px}
+  .editor-scroll{padding:12px 14px}
+  .section-body{padding:4px 14px 14px}
+  .section-header{padding:12px 14px}
   .project-grid{grid-template-columns:1fr}
-  .tabs{overflow-x:auto}
-  .tab{white-space:nowrap;padding:10px 16px;font-size:14px}
-  .category-row{grid-template-columns:1fr 1fr;gap:4px}
+  .field-row{flex-direction:column;gap:0}
+  .field-row .field-narrow{flex:1}
 }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>BrightCode Editor</h1>
-  <div class="header-actions">
-    <span id="status" style="font-size:13px;color:var(--text-dim)"></span>
-    <button class="btn btn-gold" onclick="deployToProduction()" id="deploy-btn" style="font-size:13px;padding:8px 20px;white-space:nowrap">🚀 Publish to Production</button>
-  </div>
-</div>
-
-<div class="container">
-  <div class="tabs">
-    <div class="tab active" data-tab="content">Site Text</div>
-    <div class="tab" data-tab="projects">Projects</div>
+<div class="app">
+  <!-- LEFT: Live Preview -->
+  <div class="preview-pane" id="previewPane">
+    <iframe id="previewFrame" src="http://localhost:5177" title="Live Preview"></iframe>
   </div>
 
-  <!-- SITE TEXT TAB -->
-  <div class="tab-content active" id="tab-content">
-    <div id="content-form"></div>
-    <div style="margin-top:20px;text-align:right">
-      <button class="btn btn-gold" onclick="saveContent()">Save Site Text</button>
+  <!-- RIGHT: Editor Panel -->
+  <div class="editor-pane">
+    <div class="editor-header">
+      <h1>BrightCode</h1>
+      <div class="header-actions">
+        <span class="header-status" id="status"></span>
+        <button class="btn btn-outline" id="save-btn" onclick="saveContent()">Save</button>
+        <button class="btn btn-gold" id="deploy-btn" onclick="deployToProduction()">Publish</button>
+      </div>
+    </div>
+
+    <div class="editor-scroll">
+      <div class="tabs">
+        <div class="tab active" data-tab="content">Site Text</div>
+        <div class="tab" data-tab="projects">Projects</div>
+      </div>
+
+      <div class="tab-content active" id="tab-content">
+        <div id="content-form"></div>
+      </div>
+
+      <div class="tab-content" id="tab-projects">
+        <div class="project-grid" id="project-grid"></div>
+        <div id="edit-panel-container"></div>
+      </div>
     </div>
   </div>
-
-  <!-- PROJECTS TAB -->
-  <div class="tab-content" id="tab-projects">
-    <div class="project-grid" id="project-grid"></div>
-    <div id="edit-panel-container"></div>
-  </div>
 </div>
 
+<button class="preview-toggle" id="previewToggle" onclick="togglePreview()">Preview</button>
 <div class="toast" id="toast"></div>
 
 <script>
-// ── State ──
+// ════════════════════════════════════════════
+// State
+// ════════════════════════════════════════════
 let contentData = {};
 let projectsData = { categories: [], allProjects: [] };
 let editingProject = null;
+let activeTab = 'content';
 
-// ── Tabs ──
+// ════════════════════════════════════════════
+// Utilities
+// ════════════════════════════════════════════
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function htmlToText(html) {
+  if (!html) return '';
+  return String(html).replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+}
+
+function textToHtml(text) {
+  if (!text) return '';
+  return String(text).replace(/\n/g, '<br>');
+}
+
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function getCategoryLabel(catId) {
+  const cat = projectsData.categories.find(c => c.id === catId);
+  return cat ? cat.label : catId;
+}
+
+// ════════════════════════════════════════════
+// Tabs
+// ════════════════════════════════════════════
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
     tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    activeTab = tab.dataset.tab;
+    document.getElementById('tab-' + activeTab).classList.add('active');
+    // Update Save button label
+    const saveBtn = document.getElementById('save-btn');
+    if (activeTab === 'content') {
+      saveBtn.textContent = 'Save';
+      saveBtn.style.display = '';
+    } else {
+      saveBtn.style.display = 'none';
+    }
   });
 });
 
-// ── Toast ──
-function toast(msg, type) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast ' + type + ' show';
-  setTimeout(() => el.classList.remove('show'), 3000);
+// ════════════════════════════════════════════
+// Collapsible Sections
+// ════════════════════════════════════════════
+function toggleSection(header) {
+  header.parentElement.classList.toggle('collapsed');
 }
 
-// ── Content Sections Config ──
-const contentSections = {
-  'Hero': ['heroTagline','heroHeadlinePre','heroHeadlineAccent','heroHeadlinePost','heroDescription','heroButtonText','scrollIndicatorText'],
-  'Navigation': ['navCtaText'],
-  'Logo': ['logoInitials','logoName','logoSubtitle'],
-  'About': ['aboutLabel','aboutHeadingPre','aboutHeadingAccent','aboutDescription1','aboutDescription2'],
-  'Contact': ['contactLabel','contactHeadingPre','contactHeadingAccent','contactDescription','contactCtaText','contactEmail'],
-  'Footer': ['footerCopyright'],
-  'Project Page': ['backButtonText','playVideoText','galleryTitle','viewAllText'],
-};
+// ════════════════════════════════════════════
+// Mobile Preview Toggle
+// ════════════════════════════════════════════
+function togglePreview() {
+  const pane = document.getElementById('previewPane');
+  const btn = document.getElementById('previewToggle');
+  pane.classList.toggle('show');
+  btn.textContent = pane.classList.contains('show') ? 'Close Preview' : 'Preview';
+}
 
-const longFields = new Set(['heroDescription','aboutDescription1','aboutDescription2','contactDescription','footerCopyright']);
+// ════════════════════════════════════════════
+// Content Form — Rendering
+// ════════════════════════════════════════════
+function textField(key, label) {
+  const val = contentData[key] || '';
+  return '<div class="field"><label>' + esc(label) + '</label>' +
+    '<input type="text" data-key="' + key + '" value="' + esc(val) + '"></div>';
+}
+
+function textareaField(key, label) {
+  const val = contentData[key] || '';
+  const text = htmlToText(val);
+  return '<div class="field"><label>' + esc(label) + '</label>' +
+    '<textarea data-key="' + key + '" data-html="1">' + esc(text) + '</textarea></div>';
+}
+
+function sectionStart(title, collapsed) {
+  return '<div class="section-group' + (collapsed ? ' collapsed' : '') + '">' +
+    '<div class="section-header" onclick="toggleSection(this)">' +
+    '<h3>' + esc(title) + '</h3><span class="chevron">&#9662;</span></div>' +
+    '<div class="section-body">';
+}
+
+function sectionEnd() {
+  return '</div></div>';
+}
 
 function renderContentForm() {
-  let html = '';
+  var html = '';
 
-  // Standard text sections
-  for (const [section, fields] of Object.entries(contentSections)) {
-    html += `<div class="section-group"><h3>${section}</h3>`;
-    for (const key of fields) {
-      const val = contentData[key] || '';
-      const tag = longFields.has(key) ? 'textarea' : 'input';
-      html += `<div class="field"><label>${key}</label><${tag} id="c_${key}" ${tag === 'input' ? 'type="text"' : ''} data-key="${key}">${tag === 'textarea' ? esc(val) : ''}</${tag === 'textarea' ? 'textarea' : ''}`;
-      if (tag === 'input') html = html.slice(0, -1) + ` value="${esc(val)}">`;
-      html += `</div>`;
-    }
-    html += `</div>`;
-  }
+  // ── Hero ──
+  html += sectionStart('Hero');
+  html += textField('heroTagline', 'Tagline');
+  html += textField('heroHeadlinePre', 'Headline (Before Accent)');
+  html += textField('heroHeadlineAccent', 'Headline (Accent Word)');
+  html += textField('heroHeadlinePost', 'Headline (After Accent)');
+  html += textareaField('heroDescription', 'Description');
+  html += textField('heroButtonText', 'Button Text');
+  html += textField('scrollIndicatorText', 'Scroll Indicator Text');
+  html += sectionEnd();
 
-  // Nav Section Labels
-  html += `<div class="section-group"><h3>Navigation Section Labels</h3>`;
-  html += `<div id="navLabels">`;
-  (contentData.navSectionLabels || []).forEach((label, i) => {
-    html += `<div class="field"><label>Section ${i}</label><input type="text" data-navlabel="${i}" value="${esc(label)}"></div>`;
+  // ── Logo ──
+  html += sectionStart('Logo');
+  html += textField('logoInitials', 'Initials');
+  html += textField('logoName', 'Name');
+  html += textField('logoSubtitle', 'Subtitle');
+  html += sectionEnd();
+
+  // ── Navigation ──
+  html += sectionStart('Navigation');
+  html += textField('navCtaText', 'CTA Button Text');
+
+  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Nav Links</label>';
+  (contentData.navLinks || []).forEach(function(link, i) {
+    html += '<div class="field-row">' +
+      '<div class="field"><label>Label</label><input type="text" data-navlink="' + i + '" data-prop="label" value="' + esc(link.label) + '"></div>' +
+      '<div class="field field-narrow"><label>Section #</label><input type="number" data-navlink="' + i + '" data-prop="sectionIndex" value="' + link.sectionIndex + '"></div>' +
+      '</div>';
   });
-  html += `</div></div>`;
+  html += '</div>';
 
-  // Nav Links
-  html += `<div class="section-group"><h3>Navigation Links</h3>`;
-  (contentData.navLinks || []).forEach((link, i) => {
-    html += `<div style="display:flex;gap:12px;margin-bottom:8px">`;
-    html += `<div class="field" style="flex:1"><label>Label</label><input type="text" data-navlink="${i}" data-prop="label" value="${esc(link.label)}"></div>`;
-    html += `<div class="field" style="width:100px"><label>Section #</label><input type="number" data-navlink="${i}" data-prop="sectionIndex" value="${link.sectionIndex}"></div>`;
-    html += `</div>`;
+  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Section Labels</label>';
+  (contentData.navSectionLabels || []).forEach(function(label, i) {
+    html += '<div class="field"><label>Section ' + i + '</label><input type="text" data-navlabel="' + i + '" value="' + esc(label) + '"></div>';
   });
-  html += `</div>`;
+  html += '</div>';
+  html += sectionEnd();
 
-  // About Stats
-  html += `<div class="section-group"><h3>About Stats</h3><div id="statsEditor">`;
-  (contentData.aboutStats || []).forEach((stat, i) => {
-    html += `<div class="stat-row"><input type="text" data-stat="${i}" data-prop="number" value="${esc(stat.number)}" placeholder="Number"><input type="text" data-stat="${i}" data-prop="label" value="${esc(stat.label)}" placeholder="Label"></div>`;
+  // ── About ──
+  html += sectionStart('About');
+  html += textField('aboutLabel', 'Section Label');
+  html += textField('aboutHeadingPre', 'Heading (Before Accent)');
+  html += textField('aboutHeadingAccent', 'Heading (Accent)');
+  html += textareaField('aboutDescription1', 'Paragraph 1');
+  html += textareaField('aboutDescription2', 'Paragraph 2');
+
+  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Stats</label>';
+  (contentData.aboutStats || []).forEach(function(stat, i) {
+    html += '<div class="stat-row">' +
+      '<input type="text" data-stat="' + i + '" data-prop="number" value="' + esc(stat.number) + '" placeholder="Number">' +
+      '<input type="text" data-stat="' + i + '" data-prop="label" value="' + esc(stat.label) + '" placeholder="Label">' +
+      '</div>';
   });
-  html += `</div></div>`;
+  html += '</div>';
+  html += sectionEnd();
 
-  // Footer Socials
-  html += `<div class="section-group"><h3>Footer Socials</h3>`;
-  html += `<div class="array-items" id="socialsArray">`;
-  (contentData.footerSocials || []).forEach((s, i) => {
-    html += `<span class="array-item">${esc(s)} <span class="remove" onclick="removeSocial(${i})">&times;</span></span>`;
+  // ── Contact ──
+  html += sectionStart('Contact');
+  html += textField('contactLabel', 'Section Label');
+  html += textField('contactHeadingPre', 'Heading (Before Accent)');
+  html += textField('contactHeadingAccent', 'Heading (Accent)');
+  html += textareaField('contactDescription', 'Description');
+  html += textField('contactCtaText', 'CTA Button Text');
+  html += textField('contactEmail', 'Email Address');
+  html += sectionEnd();
+
+  // ── Footer ──
+  html += sectionStart('Footer');
+  html += textField('footerCopyright', 'Copyright Text');
+  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Social Links</label>';
+  html += '<div class="array-items" id="socialsArray">';
+  (contentData.footerSocials || []).forEach(function(s, i) {
+    html += '<span class="array-item">' + esc(s) + ' <span class="remove" onclick="removeSocial(' + i + ')">&times;</span></span>';
   });
-  html += `</div>`;
-  html += `<div style="display:flex;gap:8px"><input type="text" id="newSocial" placeholder="Add social..." style="flex:1;padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:14px;outline:none"><button class="btn btn-outline btn-sm" onclick="addSocial()">Add</button></div>`;
-  html += `</div>`;
+  html += '</div>';
+  html += '<div class="add-row"><input type="text" id="newSocial" placeholder="Add social link..." onkeydown="if(event.key===\'Enter\')addSocial()"><button class="btn btn-outline btn-sm" onclick="addSocial()">Add</button></div>';
+  html += '</div>';
+  html += sectionEnd();
 
-  // Project Detail Labels
-  html += `<div class="section-group"><h3>Project Detail Labels</h3>`;
-  for (const [k, v] of Object.entries(contentData.projectDetailLabels || {})) {
-    html += `<div class="field"><label>${k}</label><input type="text" data-pdl="${k}" value="${esc(v)}"></div>`;
-  }
-  html += `</div>`;
+  // ── Project Page Labels ──
+  html += sectionStart('Project Page Labels', true);
+  html += textField('backButtonText', 'Back Button');
+  html += textField('playVideoText', 'Play Video Label');
+  html += textField('galleryTitle', 'Gallery Title');
+  html += textField('viewAllText', 'View All Link');
 
-  // Media Type Badges
-  html += `<div class="section-group"><h3>Media Type Badges</h3>`;
-  for (const [k, v] of Object.entries(contentData.mediaTypeBadges || {})) {
-    html += `<div class="field"><label>${k}</label><input type="text" data-mtb="${k}" value="${esc(v)}"></div>`;
+  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Detail Labels</label>';
+  var pdl = contentData.projectDetailLabels || {};
+  for (var k in pdl) {
+    html += '<div class="field"><label>' + esc(k) + '</label><input type="text" data-pdl="' + esc(k) + '" value="' + esc(pdl[k]) + '"></div>';
   }
-  html += `</div>`;
+  html += '</div>';
 
-  // Gallery Item Labels
-  html += `<div class="section-group"><h3>Gallery Item Labels</h3>`;
-  for (const [k, v] of Object.entries(contentData.galleryItemLabels || {})) {
-    html += `<div class="field"><label>${k}</label><input type="text" data-gil="${k}" value="${esc(v)}"></div>`;
+  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Media Type Badges</label>';
+  var mtb = contentData.mediaTypeBadges || {};
+  for (var k2 in mtb) {
+    html += '<div class="field"><label>' + esc(k2) + '</label><input type="text" data-mtb="' + esc(k2) + '" value="' + esc(mtb[k2]) + '"></div>';
   }
-  html += `</div>`;
+  html += '</div>';
+
+  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Gallery Item Labels</label>';
+  var gil = contentData.galleryItemLabels || {};
+  for (var k3 in gil) {
+    html += '<div class="field"><label>' + esc(k3) + '</label><input type="text" data-gil="' + esc(k3) + '" value="' + esc(gil[k3]) + '"></div>';
+  }
+  html += '</div>';
+  html += sectionEnd();
 
   document.getElementById('content-form').innerHTML = html;
 }
 
+// ════════════════════════════════════════════
+// Content Form — Gathering
+// ════════════════════════════════════════════
 function gatherContent() {
-  // Simple fields
-  for (const fields of Object.values(contentSections)) {
-    for (const key of fields) {
-      const el = document.querySelector(`[data-key="${key}"]`);
-      if (el) contentData[key] = el.value;
+  document.querySelectorAll('[data-key]').forEach(function(el) {
+    if (el.dataset.html === '1') {
+      contentData[el.dataset.key] = textToHtml(el.value);
+    } else {
+      contentData[el.dataset.key] = el.value;
     }
-  }
+  });
+
   // Nav section labels
   contentData.navSectionLabels = [];
-  document.querySelectorAll('[data-navlabel]').forEach(el => {
+  document.querySelectorAll('[data-navlabel]').forEach(function(el) {
     contentData.navSectionLabels[parseInt(el.dataset.navlabel)] = el.value;
   });
+
   // Nav links
-  const navMap = {};
-  document.querySelectorAll('[data-navlink]').forEach(el => {
-    const i = parseInt(el.dataset.navlink);
+  var navMap = {};
+  document.querySelectorAll('[data-navlink]').forEach(function(el) {
+    var i = parseInt(el.dataset.navlink);
     if (!navMap[i]) navMap[i] = {};
     navMap[i][el.dataset.prop] = el.dataset.prop === 'sectionIndex' ? parseInt(el.value) : el.value;
   });
   contentData.navLinks = Object.values(navMap);
+
   // Stats
-  const statMap = {};
-  document.querySelectorAll('[data-stat]').forEach(el => {
-    const i = parseInt(el.dataset.stat);
+  var statMap = {};
+  document.querySelectorAll('[data-stat]').forEach(function(el) {
+    var i = parseInt(el.dataset.stat);
     if (!statMap[i]) statMap[i] = {};
     statMap[i][el.dataset.prop] = el.value;
   });
   contentData.aboutStats = Object.values(statMap);
-  // Project detail labels
-  document.querySelectorAll('[data-pdl]').forEach(el => {
+
+  // Object fields
+  document.querySelectorAll('[data-pdl]').forEach(function(el) {
     contentData.projectDetailLabels[el.dataset.pdl] = el.value;
   });
-  // Media type badges
-  document.querySelectorAll('[data-mtb]').forEach(el => {
+  document.querySelectorAll('[data-mtb]').forEach(function(el) {
     contentData.mediaTypeBadges[el.dataset.mtb] = el.value;
   });
-  // Gallery item labels
-  document.querySelectorAll('[data-gil]').forEach(el => {
+  document.querySelectorAll('[data-gil]').forEach(function(el) {
     contentData.galleryItemLabels[el.dataset.gil] = el.value;
   });
 }
 
 function removeSocial(i) {
+  gatherContent();
   contentData.footerSocials.splice(i, 1);
   renderContentForm();
 }
 
 function addSocial() {
-  const input = document.getElementById('newSocial');
-  const val = input.value.trim();
+  var input = document.getElementById('newSocial');
+  var val = input.value.trim();
   if (!val) return;
+  gatherContent();
   contentData.footerSocials.push(val);
   renderContentForm();
 }
 
+// ════════════════════════════════════════════
+// Content — Save
+// ════════════════════════════════════════════
 async function saveContent() {
   gatherContent();
+  var btn = document.getElementById('save-btn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
   try {
-    const res = await fetch('/api/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contentData) });
-    const data = await res.json();
+    var res = await fetch('/api/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contentData) });
+    var data = await res.json();
     if (data.ok) toast('Site text saved!', 'success');
     else toast('Save failed: ' + (data.error || 'Unknown error'), 'error');
   } catch (err) {
     toast('Save failed: ' + err.message, 'error');
+  } finally {
+    btn.textContent = 'Save';
+    btn.disabled = false;
   }
 }
 
-// ── Projects ──
+// ════════════════════════════════════════════
+// Projects — Rendering
+// ════════════════════════════════════════════
 function renderProjects() {
-  const grid = document.getElementById('project-grid');
-  let html = '';
-  for (const p of projectsData.allProjects) {
-    html += `<div class="project-card">
-      <img src="/images/${p.image}.jpg" alt="${esc(p.title)}" onerror="this.style.background='var(--surface2)';this.style.height='180px'">
-      <div class="project-card-body">
-        <h4>${esc(p.title)}</h4>
-        <p>${esc(p.desc)}</p>
-        <button class="btn btn-outline btn-sm" onclick="openEditPanel('${p.id}')">Edit</button>
-      </div>
-    </div>`;
-  }
+  var grid = document.getElementById('project-grid');
+  var html = '';
+  projectsData.allProjects.forEach(function(p) {
+    var selected = editingProject === p.id ? ' selected' : '';
+    html += '<div class="project-card' + selected + '" onclick="openEditPanel(\'' + p.id + '\')">' +
+      '<img class="project-card-img" src="/images/' + esc(p.image) + '.jpg" alt="' + esc(p.title) + '" onerror="this.style.display=\'none\'">' +
+      '<div class="project-card-body">' +
+      '<div class="project-card-meta">' +
+      '<span class="type-badge ' + p.type + '">' + (p.type === 'video' ? '&#9654; Video' : '&#9673; Photo') + '</span>' +
+      '<span class="category-label">' + esc(getCategoryLabel(p.category)) + '</span>' +
+      '</div>' +
+      '<h4>' + esc(p.title) + '</h4>' +
+      '</div></div>';
+  });
   grid.innerHTML = html;
 }
 
+// ════════════════════════════════════════════
+// Projects — Edit Panel
+// ════════════════════════════════════════════
 function openEditPanel(id) {
   editingProject = id;
-  const p = projectsData.allProjects.find(x => x.id === id);
+  var p = projectsData.allProjects.find(function(x) { return x.id === id; });
   if (!p) return;
 
-  const fields = [
-    { key: 'title', label: 'Title' },
-    { key: 'desc', label: 'Description' },
-    { key: 'longDesc', label: 'Long Description', full: true, long: true },
-    { key: 'client', label: 'Client' },
-    { key: 'role', label: 'Role' },
-    { key: 'tools', label: 'Tools' },
-    { key: 'deliverables', label: 'Deliverables' },
-    { key: 'year', label: 'Year' },
-    { key: 'type', label: 'Type (video/image)' },
-    { key: 'color', label: 'Color (hex)' },
-    { key: 'vimeoId', label: 'Vimeo ID' },
-    { key: 'imageFocus', label: 'Image Focus (CSS position)' },
-  ];
+  renderProjects(); // highlight selected card
 
-  let html = `<div class="edit-panel open" id="edit-panel">
-    <h3>Editing: ${esc(p.title)} <button class="btn btn-outline btn-sm" onclick="closeEditPanel()">Close</button></h3>
-    <div class="edit-grid">`;
+  var catOptions = '';
+  projectsData.categories.forEach(function(c) {
+    catOptions += '<option value="' + esc(c.id) + '"' + (c.id === p.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
+  });
 
-  for (const f of fields) {
-    const val = p[f.key] || '';
-    const cls = f.full ? ' full' : '';
-    if (f.long) {
-      html += `<div class="field${cls}"><label>${f.label}</label><textarea data-pfield="${f.key}">${esc(val)}</textarea></div>`;
-    } else {
-      html += `<div class="field${cls}"><label>${f.label}</label><input type="text" data-pfield="${f.key}" value="${esc(val)}"></div>`;
-    }
-  }
+  var html = '<div class="edit-panel">' +
+    '<div class="edit-panel-header"><h3>Edit: ' + esc(p.title) + '</h3>' +
+    '<button class="btn btn-outline btn-sm" onclick="closeEditPanel()">Close</button></div>' +
+    '<div class="edit-grid">' +
 
-  html += `<div class="field full"><label>Project Image</label>
-    <div class="upload-area" onclick="document.getElementById('imageInput').click()">
-      <p style="color:var(--text-dim)">Click to upload new image</p>
-      <input type="file" id="imageInput" accept="image/*" onchange="uploadImage('${p.id}')">
-      <img class="upload-preview" id="uploadPreview" src="/images/${p.image}.jpg" alt="Current">
-    </div>
-  </div>`;
+    // Title
+    '<div class="field"><label>Title</label>' +
+    '<input type="text" data-pfield="title" value="' + esc(p.title) + '"></div>' +
 
-  html += `</div>
-    <div style="margin-top:16px;display:flex;gap:12px;justify-content:flex-end">
-      <button class="btn btn-outline" onclick="closeEditPanel()">Cancel</button>
-      <button class="btn btn-gold" onclick="saveProject()">Save Project</button>
-    </div>
-  </div>`;
+    // Category
+    '<div class="field"><label>Category</label>' +
+    '<select data-pfield="category">' + catOptions + '</select></div>' +
+
+    // Short Desc
+    '<div class="field full"><label>Short Description</label>' +
+    '<input type="text" data-pfield="desc" value="' + esc(p.desc) + '"></div>' +
+
+    // Long Desc
+    '<div class="field full"><label>Long Description</label>' +
+    '<textarea data-pfield="longDesc">' + esc(p.longDesc || '') + '</textarea></div>' +
+
+    // Client + Year
+    '<div class="field"><label>Client</label>' +
+    '<input type="text" data-pfield="client" value="' + esc(p.client) + '"></div>' +
+    '<div class="field"><label>Year</label>' +
+    '<input type="text" data-pfield="year" value="' + esc(p.year) + '"></div>' +
+
+    // Role
+    '<div class="field full"><label>Role</label>' +
+    '<input type="text" data-pfield="role" value="' + esc(p.role) + '"></div>' +
+
+    // Tools
+    '<div class="field full"><label>Tools</label>' +
+    '<input type="text" data-pfield="tools" value="' + esc(p.tools) + '"></div>' +
+
+    // Deliverables
+    '<div class="field full"><label>Deliverables</label>' +
+    '<input type="text" data-pfield="deliverables" value="' + esc(p.deliverables) + '"></div>' +
+
+    // Type + Color
+    '<div class="field"><label>Type</label>' +
+    '<select data-pfield="type">' +
+    '<option value="video"' + (p.type === 'video' ? ' selected' : '') + '>Video</option>' +
+    '<option value="image"' + (p.type === 'image' ? ' selected' : '') + '>Image</option>' +
+    '</select></div>' +
+
+    '<div class="field"><label>Color</label>' +
+    '<div class="color-row">' +
+    '<input type="color" value="' + esc(p.color || '#000000') + '" oninput="this.nextElementSibling.value=this.value">' +
+    '<input type="text" data-pfield="color" value="' + esc(p.color) + '" oninput="this.previousElementSibling.value=this.value">' +
+    '</div></div>' +
+
+    // Vimeo ID + Image Focus
+    '<div class="field"><label>Vimeo ID</label>' +
+    '<input type="text" data-pfield="vimeoId" value="' + esc(p.vimeoId) + '" placeholder="e.g. 123456789"></div>' +
+
+    '<div class="field"><label>Image Focus</label>' +
+    '<input type="text" data-pfield="imageFocus" value="' + esc(p.imageFocus) + '" placeholder="center center"></div>' +
+
+    // Image Upload
+    '<div class="field full"><label>Project Image</label>' +
+    '<div class="upload-area" id="uploadArea" onclick="document.getElementById(\'imageInput\').click()">' +
+    '<input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" onchange="uploadImage(\'' + p.id + '\')">' +
+    '<p>Click or drag an image here to upload</p>' +
+    '<img class="upload-preview" id="uploadPreview" src="/images/' + esc(p.image) + '.jpg?t=' + Date.now() + '" alt="Current thumbnail" onerror="this.style.display=\'none\'">' +
+    '</div></div>' +
+
+    '</div>' + // end edit-grid
+
+    '<div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end">' +
+    '<button class="btn btn-outline" onclick="closeEditPanel()">Cancel</button>' +
+    '<button class="btn btn-gold" id="save-project-btn" onclick="saveProject()">Save Project</button>' +
+    '</div></div>';
 
   document.getElementById('edit-panel-container').innerHTML = html;
-  document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Set up drag-and-drop
+  var area = document.getElementById('uploadArea');
+  if (area) {
+    area.addEventListener('dragover', function(e) { e.preventDefault(); area.classList.add('dragover'); });
+    area.addEventListener('dragleave', function() { area.classList.remove('dragover'); });
+    area.addEventListener('drop', function(e) {
+      e.preventDefault();
+      area.classList.remove('dragover');
+      var file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        uploadImageFile(p.id, file);
+      }
+    });
+  }
+
+  // Scroll edit panel into view
+  document.getElementById('edit-panel-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function closeEditPanel() {
   editingProject = null;
   document.getElementById('edit-panel-container').innerHTML = '';
+  renderProjects();
 }
 
 function gatherProject() {
-  const p = projectsData.allProjects.find(x => x.id === editingProject);
+  var p = projectsData.allProjects.find(function(x) { return x.id === editingProject; });
   if (!p) return null;
-  document.querySelectorAll('[data-pfield]').forEach(el => {
+  document.querySelectorAll('[data-pfield]').forEach(function(el) {
     p[el.dataset.pfield] = el.value;
   });
   return p;
 }
 
+// ════════════════════════════════════════════
+// Projects — Save
+// ════════════════════════════════════════════
 async function saveProject() {
   gatherProject();
+  var btn = document.getElementById('save-project-btn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
   try {
-    const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(projectsData) });
-    const data = await res.json();
+    var res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(projectsData) });
+    var data = await res.json();
     if (data.ok) {
       toast('Project saved!', 'success');
       renderProjects();
@@ -405,23 +653,35 @@ async function saveProject() {
     }
   } catch (err) {
     toast('Save failed: ' + err.message, 'error');
+  } finally {
+    btn.textContent = 'Save Project';
+    btn.disabled = false;
   }
 }
 
+// ════════════════════════════════════════════
+// Projects — Image Upload
+// ════════════════════════════════════════════
 async function uploadImage(projectId) {
-  const input = document.getElementById('imageInput');
+  var input = document.getElementById('imageInput');
   if (!input.files.length) return;
-  const fd = new FormData();
-  fd.append('image', input.files[0]);
+  uploadImageFile(projectId, input.files[0]);
+}
+
+async function uploadImageFile(projectId, file) {
+  var fd = new FormData();
+  fd.append('image', file);
   fd.append('projectId', projectId);
   try {
-    const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
-    const data = await res.json();
+    var res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+    var data = await res.json();
     if (data.ok) {
       toast('Image uploaded!', 'success');
-      const preview = document.getElementById('uploadPreview');
-      if (preview) preview.src = `/images/${projectId}.jpg?t=${Date.now()}`;
-      // Also refresh project cards
+      var preview = document.getElementById('uploadPreview');
+      if (preview) {
+        preview.src = '/images/' + projectId + '.jpg?t=' + Date.now();
+        preview.style.display = '';
+      }
       renderProjects();
     } else {
       toast('Upload failed: ' + (data.error || 'Unknown error'), 'error');
@@ -431,15 +691,17 @@ async function uploadImage(projectId) {
   }
 }
 
-// ── Helpers ──
+// ════════════════════════════════════════════
+// Deploy
+// ════════════════════════════════════════════
 async function deployToProduction() {
-  const btn = document.getElementById('deploy-btn');
-  const oldText = btn.textContent;
-  btn.textContent = '⏳ Publishing...';
+  var btn = document.getElementById('deploy-btn');
+  var oldText = btn.textContent;
+  btn.textContent = 'Publishing...';
   btn.disabled = true;
   try {
-    const res = await fetch('/api/deploy', { method: 'POST' });
-    const data = await res.json();
+    var res = await fetch('/api/deploy', { method: 'POST' });
+    var data = await res.json();
     if (data.ok) {
       toast(data.message, 'success');
     } else {
@@ -453,24 +715,21 @@ async function deployToProduction() {
   }
 }
 
-function esc(str) {
-  if (str == null) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Init ──
+// ════════════════════════════════════════════
+// Init
+// ════════════════════════════════════════════
 async function init() {
   try {
-    const [contentRes, projectsRes] = await Promise.all([
+    var responses = await Promise.all([
       fetch('/api/content'),
       fetch('/api/projects'),
     ]);
-    if (contentRes.status === 401 || projectsRes.status === 401) {
+    if (responses[0].status === 401 || responses[1].status === 401) {
       location.href = '/login.html';
       return;
     }
-    contentData = await contentRes.json();
-    projectsData = await projectsRes.json();
+    contentData = await responses[0].json();
+    projectsData = await responses[1].json();
     renderContentForm();
     renderProjects();
     document.getElementById('status').textContent = 'Connected';

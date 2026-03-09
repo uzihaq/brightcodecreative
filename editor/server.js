@@ -9,6 +9,12 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 5180;
+
+// NOTE: The editor frontend loads a live preview iframe from http://localhost:5177
+// (the Vite dev server). Make sure the Vite dev server is running alongside this
+// editor server: npm run dev -- --port 5177
+// When content is saved via the editor, the JSON files update on disk and Vite
+// hot-reloads the preview automatically.
 const PASSWORD = "gigiolive";
 const SESSION_SECRET = crypto.randomBytes(32).toString("hex");
 

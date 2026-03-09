@@ -1,9 +1,29 @@
 {
   "categories": [
-    { "id": "brand-films", "label": "Brand Films", "metaId": "brand-films", "subtitle": "Cinematic AI video for the world\u2019s boldest brands" },
-    { "id": "ai-personas", "label": "AI Personas", "metaId": "ai-personas", "subtitle": "Digital characters with soul, story, and style" },
-    { "id": "fashion", "label": "Fashion & Editorial", "metaId": "fashion-editorial", "subtitle": "High fashion meets artificial intelligence" },
-    { "id": "social", "label": "Social & Reels", "metaId": "social-content", "subtitle": "Scroll-stopping content engineered to perform" }
+    {
+      "id": "brand-films",
+      "label": "Brand Films",
+      "metaId": "brand-films",
+      "subtitle": "Cinematic AI video for the world\u2019s boldest brands"
+    },
+    {
+      "id": "ai-personas",
+      "label": "AI Personas",
+      "metaId": "ai-personas",
+      "subtitle": "Digital characters with soul, story, and style"
+    },
+    {
+      "id": "fashion",
+      "label": "Fashion & Editorial",
+      "metaId": "fashion-editorial",
+      "subtitle": "High fashion meets artificial intelligence"
+    },
+    {
+      "id": "social",
+      "label": "Social & Reels",
+      "metaId": "social-content",
+      "subtitle": "Scroll-stopping content engineered to perform"
+    }
   ],
   "allProjects": [
     {
@@ -21,7 +41,8 @@
       "client": "NASCAR San Diego Weekend",
       "role": "Creative Direction, AI Video Production, Prompt Engineering",
       "tools": "Higgsfield AI, Seedream 4.5, FLUX.2 Pro, Cinema Studio 2.0",
-      "deliverables": "4 teaser videos, 12 promotional stills, social media content package"
+      "deliverables": "4 teaser videos, 12 promotional stills, social media content package",
+      "visible": true
     },
     {
       "id": "anduril-250",
@@ -38,7 +59,8 @@
       "client": "Anduril Industries",
       "role": "AI Video Production",
       "tools": "Higgsfield AI, Kling 3.0",
-      "deliverables": "3 promo videos"
+      "deliverables": "3 promo videos",
+      "visible": true
     },
     {
       "id": "navy-heritage",
@@ -55,7 +77,8 @@
       "client": "U.S. Navy",
       "role": "Creative Direction, AI Production",
       "tools": "Higgsfield AI, Seedream 4.5",
-      "deliverables": "2 tribute films"
+      "deliverables": "2 tribute films",
+      "visible": true
     },
     {
       "id": "sports-sd",
@@ -72,7 +95,8 @@
       "client": "Sports San Diego",
       "role": "AI Video Production",
       "tools": "Higgsfield AI",
-      "deliverables": "5 campaign videos"
+      "deliverables": "5 campaign videos",
+      "visible": true
     },
     {
       "id": "valentina",
@@ -89,7 +113,8 @@
       "client": "Personal Project",
       "role": "Character Design, AI Generation",
       "tools": "Higgsfield Soul, FLUX.2 Pro",
-      "deliverables": "60+ images, 12 videos"
+      "deliverables": "60+ images, 12 videos",
+      "visible": true
     },
     {
       "id": "marcus",
@@ -106,7 +131,8 @@
       "client": "Personal Project",
       "role": "Character Design",
       "tools": "Higgsfield Soul",
-      "deliverables": "40+ images, 8 videos"
+      "deliverables": "40+ images, 8 videos",
+      "visible": true
     },
     {
       "id": "aria",
@@ -123,7 +149,8 @@
       "client": "Personal Project",
       "role": "Character Design, AI Generation",
       "tools": "Higgsfield Soul, Seedream 4.5",
-      "deliverables": "80+ images"
+      "deliverables": "80+ images",
+      "visible": true
     },
     {
       "id": "the-collective",
@@ -140,7 +167,8 @@
       "client": "Brand Campaign",
       "role": "Creative Direction",
       "tools": "Higgsfield AI",
-      "deliverables": "Campaign package"
+      "deliverables": "Campaign package",
+      "visible": true
     },
     {
       "id": "noir-collection",
@@ -157,7 +185,8 @@
       "client": "Editorial",
       "role": "Art Direction, AI Generation",
       "tools": "FLUX.2 Pro, Seedream 4.5",
-      "deliverables": "20 editorial images"
+      "deliverables": "20 editorial images",
+      "visible": true
     },
     {
       "id": "chromatic",
@@ -174,7 +203,8 @@
       "client": "Editorial",
       "role": "Creative Direction",
       "tools": "Higgsfield AI",
-      "deliverables": "4 fashion films"
+      "deliverables": "4 fashion films",
+      "visible": true
     },
     {
       "id": "glass-gold",
@@ -191,7 +221,8 @@
       "client": "Brand Campaign",
       "role": "Product Photography, AI Generation",
       "tools": "Seedream 4.5",
-      "deliverables": "15 product images"
+      "deliverables": "15 product images",
+      "visible": true
     },
     {
       "id": "ethereal",
@@ -208,7 +239,8 @@
       "client": "Editorial",
       "role": "AI Video Production",
       "tools": "Higgsfield AI",
-      "deliverables": "1 fashion film"
+      "deliverables": "1 fashion film",
+      "visible": true
     },
     {
       "id": "viral-series",
@@ -225,7 +257,8 @@
       "client": "Various",
       "role": "Content Creation",
       "tools": "Higgsfield AI",
-      "deliverables": "20+ reels"
+      "deliverables": "20+ reels",
+      "visible": true
     },
     {
       "id": "product-drops",
@@ -242,7 +275,8 @@
       "client": "Various",
       "role": "AI Video Production",
       "tools": "Higgsfield AI",
-      "deliverables": "Content packages"
+      "deliverables": "Content packages",
+      "visible": true
     },
     {
       "id": "brand-moments",
@@ -259,7 +293,8 @@
       "client": "Various",
       "role": "Content Creation",
       "tools": "Higgsfield AI, FLUX.2 Pro",
-      "deliverables": "50+ posts"
+      "deliverables": "50+ posts",
+      "visible": true
     },
     {
       "id": "story-arcs",
@@ -276,7 +311,8 @@
       "client": "Various",
       "role": "Creative Direction",
       "tools": "Higgsfield AI",
-      "deliverables": "3 series"
+      "deliverables": "3 series",
+      "visible": true
     }
   ]
 }
