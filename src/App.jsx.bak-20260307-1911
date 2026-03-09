@@ -1,0 +1,960 @@
+import { useState, useEffect, useRef } from "react";
+
+// Her Instagram photos (downloaded locally)
+const jenPhotos = [
+  "/jen/jen-1.jpg", "/jen/jen-2.jpg", "/jen/jen-3.jpg",
+  "/jen/jen-4.jpg", "/jen/jen-5.jpg", "/jen/jen-6.jpg",
+  "/jen/jen-7.jpg", "/jen/jen-8.jpg", "/jen/jen-9.jpg",
+];
+
+const portfolioData = {
+  categories: [
+    {
+      id: "brand-films",
+      title: "Brand Films",
+      subtitle: "Cinematic AI video for the world's boldest brands",
+      items: [
+        { title: "NASCAR San Diego", desc: "Cleared for Takeoff — Teaser Campaign", type: "video", color: "#C4943D", photo: jenPhotos[0] },
+        { title: "Anduril 250", desc: "Race Day Promo Series", type: "video", color: "#8B7355", photo: jenPhotos[1] },
+        { title: "Navy 250th Anniversary", desc: "Heritage & Honor", type: "video", color: "#4A6741", photo: jenPhotos[2] },
+        { title: "Sports San Diego", desc: "City of Champions Campaign", type: "video", color: "#5B7B9A", photo: jenPhotos[3] },
+      ]
+    },
+    {
+      id: "ai-personas",
+      title: "AI Personas",
+      subtitle: "Digital characters with soul, story, and style",
+      items: [
+        { title: "Valentina", desc: "Luxury lifestyle influencer", type: "image", color: "#9B6B8E", photo: jenPhotos[4] },
+        { title: "Marcus", desc: "Fitness & wellness creator", type: "image", color: "#6B8E9B", photo: jenPhotos[5] },
+        { title: "Aria", desc: "Travel & culture storyteller", type: "image", color: "#8E9B6B", photo: jenPhotos[6] },
+        { title: "The Collective", desc: "Multi-character brand campaign", type: "video", color: "#9B8E6B", photo: jenPhotos[7] },
+      ]
+    },
+    {
+      id: "fashion-editorial",
+      title: "Fashion & Editorial",
+      subtitle: "High fashion meets artificial intelligence",
+      items: [
+        { title: "Noir Collection", desc: "AI haute couture editorial", type: "image", color: "#3D3D3D", photo: jenPhotos[8] },
+        { title: "Chromatic", desc: "Color study in motion", type: "video", color: "#C44A4A", photo: jenPhotos[0] },
+        { title: "Glass & Gold", desc: "Luxury accessories campaign", type: "image", color: "#C4943D", photo: jenPhotos[1] },
+        { title: "Ethereal", desc: "Fantasy fashion film", type: "video", color: "#7B6B9B", photo: jenPhotos[2] },
+      ]
+    },
+    {
+      id: "social-content",
+      title: "Social & Reels",
+      subtitle: "Scroll-stopping content engineered to perform",
+      items: [
+        { title: "Viral Series", desc: "Trending format adaptations", type: "video", color: "#4A8EC4", photo: jenPhotos[3] },
+        { title: "Product Drops", desc: "Launch day content packages", type: "video", color: "#C47A4A", photo: jenPhotos[4] },
+        { title: "Brand Moments", desc: "Event & culture content", type: "image", color: "#4AC49B", photo: jenPhotos[5] },
+        { title: "Story Arcs", desc: "Serialized social narratives", type: "video", color: "#C44A7A", photo: jenPhotos[6] },
+      ]
+    }
+  ]
+};
+
+const GlowOrb = ({ x, y }) => (
+  <div
+    style={{
+      position: "fixed",
+      left: x - 200,
+      top: y - 200,
+      width: 400,
+      height: 400,
+      borderRadius: "50%",
+      background: "radial-gradient(circle, rgba(196,148,61,0.06) 0%, transparent 70%)",
+      pointerEvents: "none",
+      zIndex: 0,
+      transition: "left 0.3s ease-out, top 0.3s ease-out",
+    }}
+  />
+);
+
+const NavDot = ({ active, label, onClick }) => (
+  <button
+    onClick={onClick}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      padding: "6px 0",
+      transition: "all 0.3s ease",
+    }}
+  >
+    <div style={{
+      width: active ? 24 : 8,
+      height: 8,
+      borderRadius: 4,
+      background: active ? "#C4943D" : "rgba(255,255,255,0.2)",
+      transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+    }} />
+    <span style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: 11,
+      letterSpacing: "0.15em",
+      textTransform: "uppercase",
+      color: active ? "#C4943D" : "rgba(255,255,255,0.3)",
+      opacity: active ? 1 : 0,
+      transform: active ? "translateX(0)" : "translateX(-8px)",
+      transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+      whiteSpace: "nowrap",
+    }}>
+      {label}
+    </span>
+  </button>
+);
+
+const PortfolioCard = ({ item, index, isVisible }) => {
+  const [hovered, setHovered] = useState(false);
+  
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        aspectRatio: index === 0 ? "16/10" : "4/5",
+        borderRadius: 12,
+        overflow: "hidden",
+        cursor: "pointer",
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(40px)",
+        transition: `all 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.1}s`,
+        gridColumn: index === 0 ? "1 / -1" : "auto",
+      }}
+    >
+      {item.photo ? (
+        <img
+          src={item.photo}
+          alt={item.title}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+            transform: hovered ? "scale(1.05)" : "scale(1)",
+          }}
+          draggable={false}
+        />
+      ) : (
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: `linear-gradient(135deg, ${item.color}44 0%, ${item.color}11 50%, #0a0a0a 100%)`,
+        transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+        transform: hovered ? "scale(1.05)" : "scale(1)",
+      }} />
+      )}
+      
+      {/* Dark overlay on photos for text legibility */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: item.photo
+          ? `linear-gradient(to top, rgba(8,8,8,0.85) 0%, rgba(8,8,8,0.2) 50%, transparent 100%)`
+          : `radial-gradient(circle at ${hovered ? '30% 30%' : '50% 50%'}, ${item.color}22 0%, transparent 60%)`,
+        transition: "all 0.6s ease",
+      }} />
+
+      <div style={{
+        position: "absolute",
+        top: 16,
+        right: 16,
+        padding: "4px 10px",
+        borderRadius: 20,
+        background: "rgba(255,255,255,0.08)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <span style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 10,
+          letterSpacing: "0.15em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.5)",
+        }}>
+          {item.type === "video" ? "▶ Video" : "◉ Photo"}
+        </span>
+      </div>
+
+      {item.type === "video" && (
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: `translate(-50%, -50%) scale(${hovered ? 1.1 : 1})`,
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: "rgba(196,148,61,0.15)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(196,148,61,0.3)",
+          display: index === 0 ? "flex" : "none",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "all 0.4s ease",
+          opacity: hovered ? 1 : 0.7,
+        }}>
+          <div style={{
+            width: 0,
+            height: 0,
+            borderTop: "8px solid transparent",
+            borderBottom: "8px solid transparent",
+            borderLeft: "14px solid rgba(196,148,61,0.9)",
+            marginLeft: 3,
+          }} />
+        </div>
+      )}
+
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: index === 0 ? "40px 28px 28px" : "30px 20px 20px",
+        background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
+      }}>
+        <h3 style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: index === 0 ? 28 : 18,
+          fontWeight: 500,
+          color: "#fff",
+          margin: 0,
+          lineHeight: 1.2,
+        }}>
+          {item.title}
+        </h3>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: index === 0 ? 14 : 12,
+          color: "rgba(255,255,255,0.5)",
+          margin: "6px 0 0",
+          letterSpacing: "0.03em",
+        }}>
+          {item.desc}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default function BrightCodePortfolio() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [activeSection, setActiveSection] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [visibleSections, setVisibleSections] = useState(new Set([0]));
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const [lightMode, setLightMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const sectionsRef = useRef([]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const T = lightMode
+    ? { bg: "#faf9f6", bgNav: "rgba(250,249,246,0.92)", text: "#1a1007", textMuted: "rgba(26,16,7,0.5)", textFaint: "rgba(26,16,7,0.3)", border: "rgba(0,0,0,0.06)", card: "rgba(0,0,0,0.03)" }
+    : { bg: "#080808", bgNav: "rgba(8,8,8,0.85)", text: "#fff", textMuted: "rgba(255,255,255,0.5)", textFaint: "rgba(255,255,255,0.25)", border: "rgba(255,255,255,0.05)", card: "rgba(255,255,255,0.02)" };
+
+  useEffect(() => {
+    setHeroLoaded(true);
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+      
+      const sectionOffsets = sectionsRef.current.map(el => el?.offsetTop || 0);
+      const current = sectionOffsets.findIndex((offset, i) => {
+        const next = sectionOffsets[i + 1] || Infinity;
+        return window.scrollY + window.innerHeight / 2 >= offset && window.scrollY + window.innerHeight / 2 < next;
+      });
+      if (current >= 0) setActiveSection(current);
+
+      const newVisible = new Set();
+      sectionsRef.current.forEach((el, i) => {
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.85) newVisible.add(i);
+        }
+      });
+      setVisibleSections(newVisible);
+    };
+
+    const handleMouse = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", handleMouse);
+    handleScroll();
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouse);
+    };
+  }, []);
+
+  const scrollToSection = (index) => {
+    sectionsRef.current[index]?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const navLabels = ["Home", "Brand Films", "AI Personas", "Fashion & Editorial", "Social & Reels", "About", "Contact"];
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: T.bg,
+      color: T.text,
+      position: "relative",
+      overflow: "hidden",
+      transition: "background 0.4s ease, color 0.4s ease",
+    }}>
+
+      {/* Light/dark toggle */}
+      <button
+        onClick={() => setLightMode(l => !l)}
+        style={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          zIndex: 200,
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          background: lightMode ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+          border: `1px solid ${lightMode ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.12)"}`,
+          backdropFilter: "blur(12px)",
+          cursor: "pointer",
+          fontSize: 18,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+        }}
+        title={lightMode ? "Dark mode" : "Light mode"}
+      >
+        {lightMode ? "🌙" : "☀️"}
+      </button>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+      
+      <GlowOrb x={mousePos.x} y={mousePos.y} />
+
+      {/* Noise texture overlay */}
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        opacity: 0.03,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        pointerEvents: "none",
+        zIndex: 1,
+      }} />
+
+      {/* Fixed navigation dots */}
+      <div style={{
+        position: "fixed",
+        right: 32,
+        top: "50%",
+        transform: "translateY(-50%)",
+        display: isMobile ? "none" : "flex",
+        flexDirection: "column",
+        gap: 8,
+        zIndex: 100,
+      }}>
+        {navLabels.map((label, i) => (
+          <NavDot
+            key={label}
+            label={label}
+            active={activeSection === i}
+            onClick={() => scrollToSection(i)}
+          />
+        ))}
+      </div>
+
+      {/* Top nav bar */}
+      <nav style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: isMobile ? "16px 20px" : "24px 48px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        zIndex: 100,
+        background: scrollY > 100 ? T.bgNav : "transparent",
+        backdropFilter: scrollY > 100 ? "blur(20px)" : "none",
+        borderBottom: scrollY > 100 ? `1px solid ${T.border}` : "none",
+        transition: "all 0.4s ease",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {/* Logo mark */}
+          <div style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            background: "linear-gradient(135deg, #C4943D 0%, #E8C876 50%, #C4943D 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "'Playfair Display', serif",
+            fontSize: 16,
+            fontWeight: 600,
+            color: "#080808",
+          }}>
+            BC
+          </div>
+          <div>
+            <div style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              fontWeight: 500,
+              letterSpacing: "0.08em",
+              color: T.text,
+            }}>
+              BRIGHTCODE
+            </div>
+            <div style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 9,
+              letterSpacing: "0.25em",
+              color: "rgba(196,148,61,0.7)",
+              marginTop: -1,
+            }}>
+              CREATIVE
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: isMobile ? 12 : 36, alignItems: "center" }}>
+          {!isMobile && [
+            { label: "Work", sectionIndex: 1 },
+            { label: "About", sectionIndex: 5 },
+            { label: "Contact", sectionIndex: 6 },
+          ].map(({ label, sectionIndex }) => (
+            <a key={label} href="#"
+              onClick={e => { e.preventDefault(); scrollToSection(sectionIndex); }}
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 12,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: T.textMuted,
+                textDecoration: "none",
+                transition: "color 0.3s ease",
+                cursor: "pointer",
+              }}
+              onMouseEnter={e => e.target.style.color = "#C4943D"}
+              onMouseLeave={e => e.target.style.color = T.textMuted}
+            >
+              {label}
+            </a>
+          ))}
+          {!isMobile && <button
+            onClick={() => scrollToSection(6)}
+            style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 11,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            color: "#080808",
+            background: "linear-gradient(135deg, #C4943D, #E8C876)",
+            border: "none",
+            padding: "10px 24px",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontWeight: 500,
+          }}>
+            Start a Project
+          </button>}
+        </div>
+      </nav>
+
+      {/* HERO SECTION */}
+      <section
+        ref={el => sectionsRef.current[0] = el}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+          padding: isMobile ? "0 20px" : "0 48px",
+        }}
+      >
+        {/* Hero background glow */}
+        <div style={{
+          position: "absolute",
+          top: "20%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 800,
+          height: 600,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(196,148,61,0.08) 0%, transparent 60%)",
+          filter: "blur(40px)",
+        }} />
+
+        <div style={{
+          textAlign: "center",
+          position: "relative",
+          zIndex: 2,
+        }}>
+          <div style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            letterSpacing: "0.35em",
+            textTransform: "uppercase",
+            color: "#C4943D",
+            marginBottom: 24,
+            opacity: heroLoaded ? 1 : 0,
+            transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
+            transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s",
+          }}>
+            AI-Powered Cinematic Production
+          </div>
+          
+          <h1 style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(40px, 7vw, 88px)",
+            fontWeight: 400,
+            lineHeight: 1.05,
+            margin: 0,
+            opacity: heroLoaded ? 1 : 0,
+            transform: heroLoaded ? "translateY(0)" : "translateY(30px)",
+            transition: "all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s",
+          }}>
+            We craft <em style={{ color: "#C4943D", fontStyle: "italic" }}>cinema</em>
+            <br />from code
+          </h1>
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 16,
+            fontWeight: 300,
+            color: T.textMuted,
+            maxWidth: 480,
+            margin: "28px auto 0",
+            lineHeight: 1.7,
+            letterSpacing: "0.02em",
+            opacity: heroLoaded ? 1 : 0,
+            transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
+            transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s",
+          }}>
+            BrightCode Creative transforms bold ideas into stunning 
+            AI-generated video and imagery for brands that refuse to blend in.
+          </p>
+
+          {/* Showreel button */}
+          <div style={{
+            marginTop: 48,
+            opacity: heroLoaded ? 1 : 0,
+            transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
+            transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s",
+          }}>
+            <button style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 14,
+              background: lightMode ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(196,148,61,0.25)",
+              borderRadius: 40,
+              padding: "16px 32px 16px 20px",
+              cursor: "pointer",
+              transition: "all 0.4s ease",
+              color: T.text,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = "rgba(196,148,61,0.1)";
+              e.currentTarget.style.borderColor = "rgba(196,148,61,0.5)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = lightMode ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)";
+              e.currentTarget.style.borderColor = "rgba(196,148,61,0.25)";
+            }}
+            >
+              <div style={{
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #C4943D, #E8C876)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+                <div style={{
+                  width: 0,
+                  height: 0,
+                  borderTop: "7px solid transparent",
+                  borderBottom: "7px solid transparent",
+                  borderLeft: "12px solid #080808",
+                  marginLeft: 2,
+                }} />
+              </div>
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 13,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+              }}>Watch Showreel</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div style={{
+          position: "absolute",
+          bottom: 40,
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 8,
+          opacity: heroLoaded ? 0.4 : 0,
+          transition: "opacity 1s ease 1.2s",
+        }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 10,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: T.textMuted,
+          }}>Scroll</span>
+          <div style={{
+            width: 1,
+            height: 40,
+            background: "linear-gradient(rgba(196,148,61,0.5), transparent)",
+          }} />
+        </div>
+      </section>
+
+      {/* PORTFOLIO SECTIONS */}
+      {portfolioData.categories.map((category, catIndex) => (
+        <section
+          key={category.id}
+          ref={el => sectionsRef.current[catIndex + 1] = el}
+          style={{
+            minHeight: "100vh",
+            padding: isMobile ? "80px 20px" : "120px 48px",
+            position: "relative",
+          }}
+        >
+          {/* Section header */}
+          <div style={{
+            maxWidth: 1200,
+            margin: "0 auto 60px",
+            opacity: visibleSections.has(catIndex + 1) ? 1 : 0,
+            transform: visibleSections.has(catIndex + 1) ? "translateY(0)" : "translateY(30px)",
+            transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 16,
+              marginBottom: 8,
+            }}>
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 12,
+                color: "#C4943D",
+                letterSpacing: "0.2em",
+              }}>
+                0{catIndex + 1}
+              </span>
+              <div style={{
+                width: 40,
+                height: 1,
+                background: "rgba(196,148,61,0.3)",
+              }} />
+            </div>
+            <h2 style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(32px, 4vw, 52px)",
+              fontWeight: 400,
+              margin: "0 0 12px",
+              lineHeight: 1.1,
+            }}>
+              {category.title}
+            </h2>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              fontWeight: 300,
+              color: T.textMuted,
+              letterSpacing: "0.03em",
+              margin: 0,
+            }}>
+              {category.subtitle}
+            </p>
+          </div>
+
+          {/* Project grid */}
+          <div style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+            gap: isMobile ? 16 : 20,
+          }}>
+            {category.items.map((item, i) => (
+              <PortfolioCard
+                key={item.title}
+                item={item}
+                index={i}
+                isVisible={visibleSections.has(catIndex + 1)}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {/* ABOUT SECTION */}
+      <section
+        ref={el => sectionsRef.current[5] = el}
+        style={{
+          minHeight: "80vh",
+          padding: isMobile ? "80px 20px" : "120px 48px",
+          display: "flex",
+          alignItems: "center",
+          position: "relative",
+        }}
+      >
+        <div style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          gap: isMobile ? 40 : 80,
+          alignItems: "center",
+          opacity: visibleSections.has(5) ? 1 : 0,
+          transform: visibleSections.has(5) ? "translateY(0)" : "translateY(30px)",
+          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+          width: "100%",
+        }}>
+          <div>
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12,
+              letterSpacing: "0.25em",
+              textTransform: "uppercase",
+              color: "#C4943D",
+            }}>About</span>
+            <h2 style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(32px, 3.5vw, 48px)",
+              fontWeight: 400,
+              lineHeight: 1.15,
+              margin: "16px 0 24px",
+            }}>
+              Where creative vision
+              <br />meets <em style={{ color: "#C4943D", fontStyle: "italic" }}>AI precision</em>
+            </h2>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              fontWeight: 300,
+              color: T.textMuted,
+              lineHeight: 1.8,
+              letterSpacing: "0.02em",
+              maxWidth: 480,
+            }}>
+              BrightCode Creative is an AI-powered production studio specializing in cinematic video and image creation for brands, organizations, and creators who demand more than ordinary content.
+            </p>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              fontWeight: 300,
+              color: T.textMuted,
+              lineHeight: 1.8,
+              letterSpacing: "0.02em",
+              maxWidth: 480,
+              marginTop: 16,
+            }}>
+              We combine cutting-edge generative AI with real cinematic craft — directorial vision, camera language, and storytelling — to produce content that looks, feels, and performs like it was made by a full production team.
+            </p>
+          </div>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 20,
+          }}>
+            {[
+              { number: "50+", label: "Projects delivered" },
+              { number: "15+", label: "AI models mastered" },
+              { number: "4K", label: "Cinematic quality" },
+              { number: "48hr", label: "Average turnaround" },
+            ].map((stat, i) => (
+              <div key={stat.label} style={{
+                padding: 28,
+                borderRadius: 12,
+                background: T.card,
+                border: `1px solid ${T.border}`,
+                textAlign: "center",
+              }}>
+                <div style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 36,
+                  fontWeight: 500,
+                  color: "#C4943D",
+                  marginBottom: 8,
+                }}>
+                  {stat.number}
+                </div>
+                <div style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 11,
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  color: T.textFaint,
+                }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACT SECTION */}
+      <section
+        ref={el => sectionsRef.current[6] = el}
+        style={{
+          minHeight: "60vh",
+          padding: isMobile ? "80px 20px" : "120px 48px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 600,
+          height: 600,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(196,148,61,0.06) 0%, transparent 60%)",
+          filter: "blur(40px)",
+        }} />
+
+        <div style={{
+          textAlign: "center",
+          position: "relative",
+          zIndex: 2,
+          opacity: visibleSections.has(6) ? 1 : 0,
+          transform: visibleSections.has(6) ? "translateY(0)" : "translateY(30px)",
+          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            letterSpacing: "0.25em",
+            textTransform: "uppercase",
+            color: "#C4943D",
+          }}>Let's Create</span>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(36px, 5vw, 64px)",
+            fontWeight: 400,
+            lineHeight: 1.1,
+            margin: "16px 0 24px",
+          }}>
+            Ready to bring your
+            <br /><em style={{ color: "#C4943D", fontStyle: "italic" }}>vision to life?</em>
+          </h2>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 15,
+            fontWeight: 300,
+            color: T.textMuted,
+            maxWidth: 420,
+            margin: "0 auto 40px",
+            lineHeight: 1.7,
+          }}>
+            Whether it's a brand campaign, social content, or something 
+            entirely new — we'd love to hear about your project.
+          </p>
+          
+          <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+            <button style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "#080808",
+              background: "linear-gradient(135deg, #C4943D, #E8C876)",
+              border: "none",
+              padding: "16px 40px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 500,
+            }}>
+              Start a Project
+            </button>
+            <button style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "#C4943D",
+              background: "transparent",
+              border: "1px solid rgba(196,148,61,0.3)",
+              padding: "16px 40px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 500,
+            }}>
+              hello@brightcodecreative.com
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{
+        padding: isMobile ? "32px 20px" : "40px 48px",
+        borderTop: `1px solid ${T.border}`,
+        display: "flex",
+        flexDirection: isMobile ? "column" : "row",
+        justifyContent: "space-between",
+        alignItems: isMobile ? "flex-start" : "center",
+        gap: isMobile ? 16 : 0,
+      }}>
+        <span style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 12,
+          color: T.textFaint,
+          letterSpacing: "0.05em",
+        }}>
+          © 2026 BrightCode Creative. All rights reserved.
+        </span>
+        <div style={{ display: "flex", gap: 24 }}>
+          {["Instagram", "Vimeo", "LinkedIn"].map(platform => (
+            <a key={platform} href="#" style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12,
+              color: T.textFaint,
+              textDecoration: "none",
+              letterSpacing: "0.05em",
+              transition: "color 0.3s ease",
+            }}
+            onMouseEnter={e => e.target.style.color = "#C4943D"}
+            onMouseLeave={e => e.target.style.color = T.textFaint}
+            >
+              {platform}
+            </a>
+          ))}
+        </div>
+      </footer>
+    </div>
+  );
+}
