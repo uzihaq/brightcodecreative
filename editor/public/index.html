@@ -194,6 +194,14 @@ h1,h2,h3{font-family:'Playfair Display',serif;font-weight:600}
         <div id="edit-panel-container"></div>
       </div>
     </div>
+
+    <!-- Request a Change -->
+    <div style="border-top:1px solid var(--border);margin-top:20px;padding-top:16px">
+      <h3 style="font-size:14px;color:var(--gold);margin:0 0 8px;text-transform:uppercase;letter-spacing:.5px">💬 Request a Change</h3>
+      <p style="font-size:12px;color:var(--text-dim);margin:0 0 10px">Can't find what you need? Describe what you want changed and we'll take care of it.</p>
+      <textarea id="requestMessage" placeholder="e.g. Can you add a new project called..." style="width:100%;height:80px;resize:vertical;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:10px;font-family:var(--font-body);font-size:13px;box-sizing:border-box"></textarea>
+      <button class="btn btn-gold" onclick="sendRequest()" id="request-btn" style="margin-top:8px;font-size:12px;padding:8px 20px;width:100%">Send Request</button>
+    </div>
   </div>
 </div>
 
@@ -751,6 +759,29 @@ async function uploadImageFile(projectId, file) {
 // ════════════════════════════════════════════
 // Deploy
 // ════════════════════════════════════════════
+async function sendRequest() {
+  var msg = document.getElementById('requestMessage').value.trim();
+  if (!msg) { toast('Please type a message', 'error'); return; }
+  var btn = document.getElementById('request-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  try {
+    var res = await fetch('/api/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }) });
+    var data = await res.json();
+    if (data.ok) {
+      toast(data.message, 'success');
+      document.getElementById('requestMessage').value = '';
+    } else {
+      toast('Failed: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    toast('Failed: ' + err.message, 'error');
+  } finally {
+    btn.textContent = 'Send Request';
+    btn.disabled = false;
+  }
+}
+
 async function deployToProduction() {
   var btn = document.getElementById('deploy-btn');
   var oldText = btn.textContent;

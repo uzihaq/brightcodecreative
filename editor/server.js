@@ -139,6 +139,35 @@ app.post("/api/deploy", (_req, res) => {
   });
 });
 
+// API: Send edit request to Uzair via Telegram
+const TELEGRAM_BOT_TOKEN = "8755445926:AAHPiiYzjk6ELAUVSUmkUZ2UvCYedNn-Gpo";
+const UZAIR_CHAT_ID = "7676490178";
+
+app.post("/api/request", async (req, res) => {
+  const message = req.body.message?.trim();
+  if (!message) return res.status(400).json({ error: "Message is required" });
+  try {
+    const text = `🔔 *BrightCode Edit Request*\n\nFrom the editor:\n\n${message}`;
+    const tgRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: UZAIR_CHAT_ID,
+        text,
+        parse_mode: "Markdown",
+      }),
+    });
+    const data = await tgRes.json();
+    if (data.ok) {
+      res.json({ ok: true, message: "Request sent! Uzair will get back to you." });
+    } else {
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`BrightCode Editor running at http://localhost:${PORT}`);
 });
