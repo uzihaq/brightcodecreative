@@ -150,7 +150,16 @@ h1,h2,h3{font-family:'Playfair Display',serif;font-weight:600}
 <div class="app">
   <!-- LEFT: Live Preview -->
   <div class="preview-pane" id="previewPane">
-    <iframe id="previewFrame" src="http://localhost:5177" title="Live Preview"></iframe>
+    <iframe id="previewFrame" title="Live Preview"></iframe>
+    <script>
+      // Use localhost when developing locally, Tailscale hostname when accessed remotely
+      var pf = document.getElementById('previewFrame');
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        pf.src = 'http://localhost:5177';
+      } else {
+        pf.src = 'https://' + location.hostname + ':8443';
+      }
+    </script>
   </div>
 
   <!-- RIGHT: Editor Panel -->
@@ -175,6 +184,12 @@ h1,h2,h3{font-family:'Playfair Display',serif;font-weight:600}
       </div>
 
       <div class="tab-content" id="tab-projects">
+        <div id="category-names" style="margin-bottom:20px;padding:16px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)">
+          <h3 style="font-size:14px;color:var(--gold);margin:0 0 12px;text-transform:uppercase;letter-spacing:.5px">Category Names</h3>
+          <p style="font-size:12px;color:var(--text-dim);margin:0 0 12px">Renaming a category here updates the nav menu and all section headers.</p>
+          <div id="category-fields" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+          <button class="btn btn-gold" onclick="saveCategories()" style="margin-top:12px;font-size:12px;padding:6px 16px">Save Category Names</button>
+        </div>
         <div class="project-grid" id="project-grid"></div>
         <div id="edit-panel-container"></div>
       </div>
@@ -301,6 +316,7 @@ function renderContentForm() {
   html += textField('heroHeadlinePost', 'Headline (After Accent)');
   html += textareaField('heroDescription', 'Description');
   html += textField('heroButtonText', 'Button Text');
+  html += textField('showreelUrl', 'Showreel URL (Vimeo link — leave empty to disable button)');
   html += textField('scrollIndicatorText', 'Scroll Indicator Text');
   html += sectionEnd();
 
@@ -324,11 +340,7 @@ function renderContentForm() {
   });
   html += '</div>';
 
-  html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Section Labels</label>';
-  (contentData.navSectionLabels || []).forEach(function(label, i) {
-    html += '<div class="field"><label>Section ' + i + '</label><input type="text" data-navlabel="' + i + '" value="' + esc(label) + '"></div>';
-  });
-  html += '</div>';
+  html += '<div style="margin-top:12px;padding:8px 12px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--text-dim)">ℹ️ Navigation section labels (Home, Brand Films, etc.) are set automatically from your project categories. Rename a category in the Projects tab to update the nav.</div>';
   html += sectionEnd();
 
   // ── About ──
@@ -356,6 +368,7 @@ function renderContentForm() {
   html += textField('contactHeadingAccent', 'Heading (Accent)');
   html += textareaField('contactDescription', 'Description');
   html += textField('contactCtaText', 'CTA Button Text');
+  html += textField('startProjectUrl', 'CTA Button Link (mailto: or URL — defaults to email)');
   html += textField('contactEmail', 'Email Address');
   html += sectionEnd();
 
@@ -363,12 +376,15 @@ function renderContentForm() {
   html += sectionStart('Footer');
   html += textField('footerCopyright', 'Copyright Text');
   html += '<div style="margin-top:12px"><label style="display:block;font-size:12px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Social Links</label>';
-  html += '<div class="array-items" id="socialsArray">';
   (contentData.footerSocials || []).forEach(function(s, i) {
-    html += '<span class="array-item">' + esc(s) + ' <span class="remove" onclick="removeSocial(' + i + ')">&times;</span></span>';
+    var name = typeof s === 'string' ? s : s.name;
+    var url = typeof s === 'string' ? '' : (s.url || '');
+    html += '<div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-bottom:6px;align-items:center">' +
+      '<input type="text" data-social-name="' + i + '" value="' + esc(name) + '" placeholder="Name" style="font-size:13px">' +
+      '<input type="text" data-social-url="' + i + '" value="' + esc(url) + '" placeholder="URL (e.g. https://instagram.com/...)" style="font-size:13px">' +
+      '<span class="remove" onclick="removeSocial(' + i + ')" style="cursor:pointer;color:var(--text-dim);font-size:18px">&times;</span></div>';
   });
-  html += '</div>';
-  html += '<div class="add-row"><input type="text" id="newSocial" placeholder="Add social link..." onkeydown="if(event.key===\'Enter\')addSocial()"><button class="btn btn-outline btn-sm" onclick="addSocial()">Add</button></div>';
+  html += '<button class="btn btn-outline btn-sm" onclick="addSocial()" style="margin-top:6px">+ Add Social Link</button>';
   html += '</div>';
   html += sectionEnd();
 
@@ -417,10 +433,7 @@ function gatherContent() {
   });
 
   // Nav section labels
-  contentData.navSectionLabels = [];
-  document.querySelectorAll('[data-navlabel]').forEach(function(el) {
-    contentData.navSectionLabels[parseInt(el.dataset.navlabel)] = el.value;
-  });
+  // navSectionLabels removed — built automatically from category labels
 
   // Nav links
   var navMap = {};
@@ -450,6 +463,20 @@ function gatherContent() {
   document.querySelectorAll('[data-gil]').forEach(function(el) {
     contentData.galleryItemLabels[el.dataset.gil] = el.value;
   });
+
+  // Social links
+  var socials = [];
+  document.querySelectorAll('[data-social-name]').forEach(function(el) {
+    var i = parseInt(el.dataset.socialName);
+    if (!socials[i]) socials[i] = {};
+    socials[i].name = el.value;
+  });
+  document.querySelectorAll('[data-social-url]').forEach(function(el) {
+    var i = parseInt(el.dataset.socialUrl);
+    if (!socials[i]) socials[i] = {};
+    socials[i].url = el.value;
+  });
+  if (socials.length > 0) contentData.footerSocials = socials;
 }
 
 function removeSocial(i) {
@@ -459,11 +486,8 @@ function removeSocial(i) {
 }
 
 function addSocial() {
-  var input = document.getElementById('newSocial');
-  var val = input.value.trim();
-  if (!val) return;
   gatherContent();
-  contentData.footerSocials.push(val);
+  contentData.footerSocials.push({ name: 'New Link', url: '' });
   renderContentForm();
 }
 
@@ -478,7 +502,10 @@ async function saveContent() {
   try {
     var res = await fetch('/api/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contentData) });
     var data = await res.json();
-    if (data.ok) toast('Site text saved!', 'success');
+    if (data.ok) {
+      toast('Site text saved!', 'success');
+      setTimeout(function() { document.getElementById('previewFrame').src += ''; }, 500);
+    }
     else toast('Save failed: ' + (data.error || 'Unknown error'), 'error');
   } catch (err) {
     toast('Save failed: ' + err.message, 'error');
@@ -491,6 +518,34 @@ async function saveContent() {
 // ════════════════════════════════════════════
 // Projects — Rendering
 // ════════════════════════════════════════════
+function renderCategoryNames() {
+  var container = document.getElementById('category-fields');
+  var html = '';
+  projectsData.categories.forEach(function(cat, i) {
+    html += '<div class="field" style="margin:0"><label style="font-size:11px">' + esc(cat.id) + '</label><input type="text" data-catindex="' + i + '" value="' + esc(cat.label) + '" style="font-size:13px"></div>';
+  });
+  container.innerHTML = html;
+}
+
+async function saveCategories() {
+  document.querySelectorAll('[data-catindex]').forEach(function(el) {
+    projectsData.categories[parseInt(el.dataset.catindex)].label = el.value;
+  });
+  try {
+    var res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(projectsData) });
+    var data = await res.json();
+    if (data.ok) {
+      toast('Categories saved! Nav will update.', 'success');
+      renderProjects();
+      setTimeout(function() { document.getElementById('previewFrame').src += ''; }, 500);
+    } else {
+      toast('Save failed: ' + (data.error || 'Unknown'), 'error');
+    }
+  } catch (err) {
+    toast('Save failed: ' + err.message, 'error');
+  }
+}
+
 function renderProjects() {
   var grid = document.getElementById('project-grid');
   var html = '';
@@ -648,6 +703,7 @@ async function saveProject() {
     if (data.ok) {
       toast('Project saved!', 'success');
       renderProjects();
+      setTimeout(function() { document.getElementById('previewFrame').src += ''; }, 500);
     } else {
       toast('Save failed: ' + (data.error || 'Unknown error'), 'error');
     }
@@ -677,6 +733,7 @@ async function uploadImageFile(projectId, file) {
     var data = await res.json();
     if (data.ok) {
       toast('Image uploaded!', 'success');
+      setTimeout(function() { document.getElementById('previewFrame').src += ''; }, 500);
       var preview = document.getElementById('uploadPreview');
       if (preview) {
         preview.src = '/images/' + projectId + '.jpg?t=' + Date.now();
@@ -731,6 +788,7 @@ async function init() {
     contentData = await responses[0].json();
     projectsData = await responses[1].json();
     renderContentForm();
+    renderCategoryNames();
     renderProjects();
     document.getElementById('status').textContent = 'Connected';
   } catch (err) {

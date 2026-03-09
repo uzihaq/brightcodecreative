@@ -7,6 +7,7 @@ import {
   heroHeadlinePost,
   heroDescription,
   heroButtonText,
+  showreelUrl,
   scrollIndicatorText,
   navSectionLabels,
   aboutLabel,
@@ -20,6 +21,7 @@ import {
   contactHeadingAccent,
   contactDescription,
   contactCtaText,
+  startProjectUrl,
   contactEmail,
 } from "../data/siteContent";
 import NavBar from "../components/NavBar";
@@ -250,7 +252,9 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
             transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
             transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s",
           }}>
-            <button style={{
+            <button
+            onClick={() => showreelUrl && window.open(showreelUrl, '_blank')}
+            style={{
               display: "inline-flex",
               alignItems: "center",
               gap: 14,
@@ -258,7 +262,8 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
               border: `1px solid ${rgba(colors.gold, 0.25)}`,
               borderRadius: 40,
               padding: "16px 32px 16px 20px",
-              cursor: "pointer",
+              cursor: showreelUrl ? "pointer" : "default",
+              opacity: showreelUrl ? 1 : 0.6,
               transition: "all 0.4s ease",
               color: T.text,
             }}
@@ -501,7 +506,7 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
           </p>
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-            <button style={{
+            <a href={startProjectUrl || `mailto:${contactEmail}`} style={{
               fontFamily: fonts.body,
               fontSize: 13,
               letterSpacing: "0.12em",
@@ -513,10 +518,12 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
               borderRadius: 8,
               cursor: "pointer",
               fontWeight: 500,
+              textDecoration: "none",
+              display: "inline-block",
             }}>
               {contactCtaText}
-            </button>
-            <button style={{
+            </a>
+            <a href={`mailto:${contactEmail}`} style={{
               fontFamily: fonts.body,
               fontSize: 13,
               letterSpacing: "0.12em",
@@ -528,9 +535,11 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
               borderRadius: 8,
               cursor: "pointer",
               fontWeight: 500,
+              textDecoration: "none",
+              display: "inline-block",
             }}>
               {contactEmail}
-            </button>
+            </a>
           </div>
         </div>
       </section>

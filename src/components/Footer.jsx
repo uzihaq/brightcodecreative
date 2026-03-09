@@ -20,21 +20,25 @@ const Footer = ({ T, isMobile }) => (
       {footerCopyright}
     </span>
     <div style={{ display: "flex", gap: 24 }}>
-      {footerSocials.map(platform => (
-        <a key={platform} href="#" style={{
-          fontFamily: fonts.body,
-          fontSize: 12,
-          color: T.textFaint,
-          textDecoration: "none",
-          letterSpacing: "0.05em",
-          transition: "color 0.3s ease",
-        }}
-        onMouseEnter={e => e.target.style.color = colors.gold}
-        onMouseLeave={e => e.target.style.color = T.textFaint}
-        >
-          {platform}
-        </a>
-      ))}
+      {footerSocials.map(social => {
+        const name = typeof social === "string" ? social : social.name;
+        const url = typeof social === "string" ? "#" : (social.url || "#");
+        return (
+          <a key={name} href={url} target={url !== "#" ? "_blank" : undefined} rel="noopener noreferrer" style={{
+            fontFamily: fonts.body,
+            fontSize: 12,
+            color: T.textFaint,
+            textDecoration: "none",
+            letterSpacing: "0.05em",
+            transition: "color 0.3s ease",
+          }}
+          onMouseEnter={e => e.target.style.color = colors.gold}
+          onMouseLeave={e => e.target.style.color = T.textFaint}
+          >
+            {name}
+          </a>
+        );
+      })}
     </div>
   </footer>
 );

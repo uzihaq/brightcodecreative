@@ -13,10 +13,19 @@ export const heroHeadlineAccent = data.heroHeadlineAccent;
 export const heroHeadlinePost = data.heroHeadlinePost;
 export const heroDescription = data.heroDescription;
 export const heroButtonText = data.heroButtonText;
+export const showreelUrl = data.showreelUrl || "";
 export const scrollIndicatorText = data.scrollIndicatorText;
 
 // -- Navigation --
-export const navSectionLabels = data.navSectionLabels;
+// navSectionLabels is built dynamically: "Home" + category labels + "About" + "Contact"
+// This way renaming a category automatically updates the nav.
+import projectsData from "./projects.json";
+export const navSectionLabels = [
+  "Home",
+  ...projectsData.categories.map((c) => c.label),
+  "About",
+  "Contact",
+];
 export const navLinks = data.navLinks;
 export const navCtaText = data.navCtaText;
 
@@ -39,6 +48,7 @@ export const contactHeadingPre = data.contactHeadingPre;
 export const contactHeadingAccent = data.contactHeadingAccent;
 export const contactDescription = data.contactDescription;
 export const contactCtaText = data.contactCtaText;
+export const startProjectUrl = data.startProjectUrl || "";
 export const contactEmail = data.contactEmail;
 
 // -- Footer --
