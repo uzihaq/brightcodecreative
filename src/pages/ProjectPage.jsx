@@ -14,8 +14,11 @@ import ProjectCard from "../components/ProjectCard";
 const ProjectPage = ({ projectId, onBack, isMobile }) => {
   const [loaded, setLoaded] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [lightboxSection, setLightboxSection] = useState(null);
+  const [activeVideo, setActiveVideo] = useState(null);
   const project = allProjects.find(p => p.id === projectId) || allProjects[0];
-  useEffect(() => { setLoaded(true); setVideoPlaying(false); window.scrollTo(0, 0); }, [projectId]);
+  useEffect(() => { setLoaded(true); setVideoPlaying(false); setLightboxIdx(null); setLightboxSection(null); setActiveVideo(null); window.scrollTo(0, 0); }, [projectId]);
 
   const relatedProjects = allProjects.filter(p => p.category === project.category && p.id !== project.id).slice(0, 3);
 
@@ -106,19 +109,142 @@ const ProjectPage = ({ projectId, onBack, isMobile }) => {
         </div>
       </div>
 
-      {/* Gallery placeholder */}
-      <div style={{ maxWidth: 1200, margin: "80px auto", padding: "0 48px" }}>
-        <h3 style={{ fontFamily: fonts.heading, fontSize: 24, fontWeight: 400, marginBottom: 24, color: colors.cream }}>
-          Project <em style={{ color: colors.gold, fontStyle: "italic" }}>{galleryTitle}</em>
-        </h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-          {[1,2,3,4,5,6].map(i => (
-            <div key={i} style={{ aspectRatio: i <= 2 ? "16/9" : "4/5", borderRadius: 10, overflow: "hidden", background: `linear-gradient(135deg, ${project.color}33 0%, #0a0a0a 100%)`, gridColumn: i <= 2 ? "span 1" : "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontFamily: fonts.body, fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.15)" }}>{i <= 3 ? galleryItemLabels.video : galleryItemLabels.still} {i}</span>
-            </div>
-          ))}
+      {/* Gallery — flat */}
+      {project.gallery && project.gallery.length > 0 && (
+        <div style={{ maxWidth: 1200, margin: "80px auto", padding: isMobile ? "0 20px" : "0 48px" }}>
+          <h3 style={{ fontFamily: fonts.heading, fontSize: 24, fontWeight: 400, marginBottom: 24, color: colors.cream }}>
+            Project <em style={{ color: colors.gold, fontStyle: "italic" }}>{galleryTitle}</em>
+          </h3>
+          <div style={{ columnCount: isMobile ? 2 : 3, columnGap: 12 }}>
+            {project.gallery.map((src, i) => (
+              <div key={i} style={{ breakInside: "avoid", marginBottom: 12, cursor: "pointer" }}
+                onClick={() => setLightboxIdx(i)}>
+                <img src={src} alt="" loading="lazy" style={{
+                  width: "100%", display: "block", borderRadius: 10,
+                  transition: "transform 0.3s ease, filter 0.3s ease",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.filter = "brightness(1.1)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.filter = "brightness(1)"; }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Gallery — sectioned (e.g. U / J for AI Personas) */}
+      {project.gallerySections && project.gallerySections.length > 0 && (
+        <div style={{ maxWidth: 1200, margin: "80px auto", padding: isMobile ? "0 20px" : "0 48px" }}>
+          {project.gallerySections.map((section, si) => {
+            const offsetBefore = project.gallerySections.slice(0, si).reduce((sum, s) => sum + s.images.length, 0);
+            return (
+              <div key={section.label} style={{ marginBottom: 64 }}>
+                <h3 style={{
+                  fontFamily: fonts.heading, fontSize: 48, fontWeight: 400, color: colors.gold,
+                  marginBottom: 24, fontStyle: "italic",
+                  borderBottom: `1px solid ${rgba(colors.gold, 0.2)}`, paddingBottom: 12,
+                }}>
+                  {section.label}
+                </h3>
+                <div style={{ columnCount: isMobile ? 2 : 3, columnGap: 12 }}>
+                  {section.images.map((src, i) => (
+                    <div key={i} style={{ breakInside: "avoid", marginBottom: 12, cursor: "pointer" }}
+                      onClick={() => { setLightboxSection(si); setLightboxIdx(i); }}>
+                      <img src={src} alt="" loading="lazy" style={{
+                        width: "100%", display: "block", borderRadius: 10,
+                        transition: "transform 0.3s ease, filter 0.3s ease",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.filter = "brightness(1.1)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.filter = "brightness(1)"; }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Video Gallery */}
+      {project.videoGallery && project.videoGallery.length > 0 && (
+        <div style={{ maxWidth: 1200, margin: "80px auto", padding: isMobile ? "0 20px" : "0 48px" }}>
+          <h3 style={{ fontFamily: fonts.heading, fontSize: 24, fontWeight: 400, marginBottom: 24, color: colors.cream }}>
+            All <em style={{ color: colors.gold, fontStyle: "italic" }}>Videos</em>
+          </h3>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 16 }}>
+            {project.videoGallery.map((v, i) => (
+              <div key={i} style={{ borderRadius: 12, overflow: "hidden", background: "#111" }}>
+                {activeVideo === i ? (
+                  <div style={{ aspectRatio: "16/9", position: "relative" }}>
+                    <iframe
+                      src={`https://player.vimeo.com/video/${v.vimeoId}?autoplay=1&title=0&byline=0&portrait=0&color=C4943D`}
+                      style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      title={v.title}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => setActiveVideo(i)}
+                    style={{ aspectRatio: "16/9", position: "relative", cursor: "pointer", overflow: "hidden" }}
+                  >
+                    <img src={v.image} alt={v.title} style={{
+                      width: "100%", height: "100%", objectFit: "cover", display: "block",
+                      transition: "transform 0.4s ease",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
+                    onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                    />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)" }} />
+                    <div style={{
+                      position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
+                      width: 56, height: 56, borderRadius: "50%",
+                      background: rgba(colors.gold, 0.15), backdropFilter: "blur(10px)",
+                      border: `1px solid ${rgba(colors.gold, 0.3)}`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <div style={{ width: 0, height: 0, borderTop: "8px solid transparent", borderBottom: "8px solid transparent", borderLeft: `14px solid ${rgba(colors.gold, 0.9)}`, marginLeft: 3 }} />
+                    </div>
+                  </div>
+                )}
+                <div style={{ padding: "12px 16px" }}>
+                  <div style={{ fontFamily: fonts.heading, fontSize: 16, fontWeight: 400, color: colors.cream }}>{v.title}</div>
+                  <div style={{ fontFamily: fonts.body, fontSize: 12, color: "rgba(245,240,232,0.4)", marginTop: 4 }}>{v.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Gallery lightbox */}
+      {lightboxIdx !== null && (() => {
+        const images = lightboxSection !== null && project.gallerySections
+          ? project.gallerySections[lightboxSection].images
+          : project.gallery || [];
+        const total = images.length;
+        return total > 0 ? (
+          <div onClick={() => { setLightboxIdx(null); setLightboxSection(null); }} style={{
+            position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.92)",
+            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+          }}>
+            <img src={images[lightboxIdx]} alt="" style={{
+              maxWidth: "90vw", maxHeight: "90vh", borderRadius: 12, objectFit: "contain",
+            }} />
+            {total > 1 && (
+              <>
+                <button onClick={e => { e.stopPropagation(); setLightboxIdx((lightboxIdx - 1 + total) % total); }}
+                  style={{ position: "fixed", left: 20, top: "50%", transform: "translateY(-50%)", background: "rgba(196,148,61,0.2)", border: "none", color: colors.cream, fontSize: 32, width: 48, height: 48, borderRadius: "50%", cursor: "pointer", backdropFilter: "blur(8px)" }}>‹</button>
+                <button onClick={e => { e.stopPropagation(); setLightboxIdx((lightboxIdx + 1) % total); }}
+                  style={{ position: "fixed", right: 20, top: "50%", transform: "translateY(-50%)", background: "rgba(196,148,61,0.2)", border: "none", color: colors.cream, fontSize: 32, width: 48, height: 48, borderRadius: "50%", cursor: "pointer", backdropFilter: "blur(8px)" }}>›</button>
+              </>
+            )}
+            <span style={{ position: "fixed", top: 20, right: 20, color: "rgba(245,240,232,0.5)", fontFamily: fonts.body, fontSize: 13 }}>{lightboxIdx + 1} / {total}</span>
+          </div>
+        ) : null;
+      })()}
 
       {/* Related projects */}
       {relatedProjects.length > 0 && (

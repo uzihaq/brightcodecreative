@@ -1,5 +1,7 @@
 // Helper: prepend Vite base URL so images work on GitHub Pages
 const img = (name) => `${import.meta.env.BASE_URL}images/${name}.jpg`;
+// Gallery images already have extensions
+const galleryImg = (filename) => `${import.meta.env.BASE_URL}images/${filename}`;
 
 // Default focal point for image cropping
 const DEFAULT_FOCUS = "center center";
@@ -27,6 +29,17 @@ export const allProjects = projectsData.allProjects
     image: img(p.image),
     imageFocus: p.imageFocus || DEFAULT_FOCUS,
     vimeoId: parseVimeoId(p.vimeoId),
+    gallery: (p.gallery || []).map(galleryImg),
+    gallerySections: (p.gallerySections || []).map(s => ({
+      label: s.label,
+      images: s.images.map(galleryImg),
+    })),
+    previewImages: (p.previewImages || []).map(galleryImg),
+    videoGallery: (p.videoGallery || []).map(v => ({
+      ...v,
+      image: img(v.image),
+      vimeoId: parseVimeoId(v.vimeoId),
+    })),
   }));
 
 // Generate categoryMeta from allProjects + category subtitles
@@ -44,5 +57,6 @@ export const categoryMeta = projectsData.categories.map((cat) => ({
       color: p.color,
       photo: p.image,
       imageFocus: p.imageFocus,
+      previewImages: p.previewImages,
     })),
 }));
