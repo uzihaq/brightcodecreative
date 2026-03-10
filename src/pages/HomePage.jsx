@@ -26,6 +26,7 @@ import {
 } from "../data/siteContent";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
+import ContactForm from "../components/ContactForm";
 import WorkPage from "./WorkPage";
 
 const NavDot = ({ active, label, onClick }) => (
@@ -70,6 +71,7 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
   const [activeSection, setActiveSection] = useState(0);
   const [visibleSections, setVisibleSections] = useState(new Set([0]));
   const [heroLoaded, setHeroLoaded] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const sectionsRef = useRef([]);
 
   const T = getTheme(lightMode);
@@ -289,8 +291,8 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
       <section
         ref={el => sectionsRef.current[5] = el}
         style={{
-          minHeight: "80vh",
-          padding: isMobile ? "80px 20px" : "120px 48px",
+          minHeight: "auto",
+          padding: isMobile ? "40px 20px" : "80px 48px",
           display: "flex",
           alignItems: "center",
           position: "relative",
@@ -392,8 +394,8 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
       <section
         ref={el => sectionsRef.current[6] = el}
         style={{
-          minHeight: "60vh",
-          padding: isMobile ? "80px 20px" : "120px 48px",
+          minHeight: "auto",
+          padding: isMobile ? "40px 20px" : "80px 48px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -449,8 +451,8 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
             {contactDescription}
           </p>
 
-          <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-            <a href={startProjectUrl || `mailto:${contactEmail}`} style={{
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 12, justifyContent: "center", alignItems: "center", padding: isMobile ? "0 16px" : 0 }}>
+            <button onClick={() => setFormOpen(true)} style={{
               fontFamily: fonts.body,
               fontSize: 13,
               letterSpacing: "0.12em",
@@ -458,35 +460,42 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
               color: colors.darkCard,
               background: `linear-gradient(135deg, ${colors.gold}, ${colors.goldLight})`,
               border: "none",
-              padding: "16px 40px",
+              padding: isMobile ? "14px 24px" : "16px 40px",
               borderRadius: 8,
               cursor: "pointer",
               fontWeight: 500,
               textDecoration: "none",
               display: "inline-block",
+              textAlign: "center",
+              width: isMobile ? "100%" : "auto",
             }}>
               {contactCtaText}
-            </a>
+            </button>
             <a href={`mailto:${contactEmail}`} style={{
               fontFamily: fonts.body,
-              fontSize: 13,
+              fontSize: isMobile ? 11 : 13,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
               color: colors.gold,
               background: "transparent",
               border: `1px solid ${rgba(colors.gold, 0.3)}`,
-              padding: "16px 40px",
+              padding: isMobile ? "14px 24px" : "16px 40px",
               borderRadius: 8,
               cursor: "pointer",
               fontWeight: 500,
               textDecoration: "none",
               display: "inline-block",
+              textAlign: "center",
+              width: isMobile ? "100%" : "auto",
             }}>
               {contactEmail}
             </a>
           </div>
         </div>
       </section>
+
+      {/* CONTACT FORM MODAL */}
+      <ContactForm isOpen={formOpen} onClose={() => setFormOpen(false)} isMobile={isMobile} />
 
       {/* FOOTER */}
       <Footer T={T} isMobile={isMobile} />

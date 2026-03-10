@@ -53,8 +53,8 @@ const WorkPage = ({ sectionsRef, visibleSections, isMobile, T, onProjectClick })
         key={category.id}
         ref={el => sectionsRef.current[catIndex + 1] = el}
         style={{
-          minHeight: "100vh",
-          padding: isMobile ? "80px 20px" : "120px 48px",
+          minHeight: "auto",
+          padding: isMobile ? "40px 20px" : "60px 48px",
           position: "relative",
         }}
       >
