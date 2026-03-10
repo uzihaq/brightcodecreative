@@ -174,7 +174,7 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
       <section
         ref={el => sectionsRef.current[0] = el}
         style={{
-          minHeight: "100vh",
+          minHeight: "80vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -245,63 +245,7 @@ const HomePage = ({ lightMode, setLightMode, isMobile, setPage, setSelectedProje
             {heroDescription}
           </p>
 
-          {/* Showreel button */}
-          <div style={{
-            marginTop: 48,
-            opacity: heroLoaded ? 1 : 0,
-            transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
-            transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s",
-          }}>
-            <button
-            onClick={() => showreelUrl && window.open(showreelUrl, '_blank')}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 14,
-              background: lightMode ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${rgba(colors.gold, 0.25)}`,
-              borderRadius: 40,
-              padding: "16px 32px 16px 20px",
-              cursor: showreelUrl ? "pointer" : "default",
-              opacity: showreelUrl ? 1 : 0.6,
-              transition: "all 0.4s ease",
-              color: T.text,
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = rgba(colors.gold, 0.1);
-              e.currentTarget.style.borderColor = rgba(colors.gold, 0.5);
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = lightMode ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)";
-              e.currentTarget.style.borderColor = rgba(colors.gold, 0.25);
-            }}
-            >
-              <div style={{
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: `linear-gradient(135deg, ${colors.gold}, ${colors.goldLight})`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                <div style={{
-                  width: 0,
-                  height: 0,
-                  borderTop: "7px solid transparent",
-                  borderBottom: "7px solid transparent",
-                  borderLeft: `12px solid ${colors.darkCard}`,
-                  marginLeft: 2,
-                }} />
-              </div>
-              <span style={{
-                fontFamily: fonts.body,
-                fontSize: 13,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-              }}>{heroButtonText}</span>
-            </button>
-          </div>
+
         </div>
 
         {/* Scroll indicator */}
